@@ -1,0 +1,501 @@
+variable,label,lag_hours,n_pairs,autocorrelation
+clara_radiance_hourly_mean,CLARA radiance,0,59,1.0
+clara_radiance_hourly_mean,CLARA radiance,1,44,0.09248615039138676
+clara_radiance_hourly_mean,CLARA radiance,2,41,-0.08924345434847208
+clara_radiance_hourly_mean,CLARA radiance,3,40,-0.09154713465836994
+clara_radiance_hourly_mean,CLARA radiance,4,36,0.13131848668759752
+clara_radiance_hourly_mean,CLARA radiance,5,39,0.13830780297576536
+clara_radiance_hourly_mean,CLARA radiance,6,36,-0.10430620907182649
+clara_radiance_hourly_mean,CLARA radiance,7,33,0.09226618579820862
+clara_radiance_hourly_mean,CLARA radiance,8,37,-0.07613577185608164
+clara_radiance_hourly_mean,CLARA radiance,9,30,-0.19340581324826558
+clara_radiance_hourly_mean,CLARA radiance,10,30,-0.04859199399103188
+clara_radiance_hourly_mean,CLARA radiance,11,30,-0.12925663085218067
+clara_radiance_hourly_mean,CLARA radiance,12,27,0.054734074681861346
+clara_radiance_hourly_mean,CLARA radiance,13,29,-0.17905718085613773
+clara_radiance_hourly_mean,CLARA radiance,14,25,0.11911684785403871
+clara_radiance_hourly_mean,CLARA radiance,15,25,-0.28647557128892087
+clara_radiance_hourly_mean,CLARA radiance,16,31,-0.1655021504287486
+clara_radiance_hourly_mean,CLARA radiance,17,28,0.08988532281514364
+clara_radiance_hourly_mean,CLARA radiance,18,30,-0.1113834305577351
+clara_radiance_hourly_mean,CLARA radiance,19,28,-0.07213231611123472
+clara_radiance_hourly_mean,CLARA radiance,20,25,0.09391183653333761
+clara_radiance_hourly_mean,CLARA radiance,21,28,0.09249036423767736
+clara_radiance_hourly_mean,CLARA radiance,22,25,-0.15093403722454918
+clara_radiance_hourly_mean,CLARA radiance,23,26,-0.05048863169931349
+clara_radiance_hourly_mean,CLARA radiance,24,28,0.3473247603071811
+era5_swvl1_pct,Volumetric soil water layer 1 (%),0,59,1.0
+era5_swvl1_pct,Volumetric soil water layer 1 (%),1,44,0.1771931138040235
+era5_swvl1_pct,Volumetric soil water layer 1 (%),2,41,-0.08509246996440294
+era5_swvl1_pct,Volumetric soil water layer 1 (%),3,40,-0.16513486018081336
+era5_swvl1_pct,Volumetric soil water layer 1 (%),4,36,-0.04218004297239158
+era5_swvl1_pct,Volumetric soil water layer 1 (%),5,39,-0.17119783327728488
+era5_swvl1_pct,Volumetric soil water layer 1 (%),6,36,0.0858664903998205
+era5_swvl1_pct,Volumetric soil water layer 1 (%),7,33,-0.0872430897706793
+era5_swvl1_pct,Volumetric soil water layer 1 (%),8,37,-0.2147141953353163
+era5_swvl1_pct,Volumetric soil water layer 1 (%),9,30,-0.1532213047850131
+era5_swvl1_pct,Volumetric soil water layer 1 (%),10,30,-0.22586714112790493
+era5_swvl1_pct,Volumetric soil water layer 1 (%),11,30,0.024760834741666925
+era5_swvl1_pct,Volumetric soil water layer 1 (%),12,27,-0.08184335763233919
+era5_swvl1_pct,Volumetric soil water layer 1 (%),13,29,0.2727909494063141
+era5_swvl1_pct,Volumetric soil water layer 1 (%),14,25,0.05452087400791882
+era5_swvl1_pct,Volumetric soil water layer 1 (%),15,25,0.012330276702438974
+era5_swvl1_pct,Volumetric soil water layer 1 (%),16,31,-0.31799378049495686
+era5_swvl1_pct,Volumetric soil water layer 1 (%),17,28,-0.035508818312684313
+era5_swvl1_pct,Volumetric soil water layer 1 (%),18,30,-0.2397050018815272
+era5_swvl1_pct,Volumetric soil water layer 1 (%),19,28,0.1560389562722439
+era5_swvl1_pct,Volumetric soil water layer 1 (%),20,25,0.2462970243829086
+era5_swvl1_pct,Volumetric soil water layer 1 (%),21,28,-0.10245032465984813
+era5_swvl1_pct,Volumetric soil water layer 1 (%),22,25,-0.24214777437728413
+era5_swvl1_pct,Volumetric soil water layer 1 (%),23,26,0.17240929098071986
+era5_swvl1_pct,Volumetric soil water layer 1 (%),24,28,0.6436922629462855
+era5_tcc_pct,Total cloud cover (%),0,59,1.0
+era5_tcc_pct,Total cloud cover (%),1,44,-0.1803000114751914
+era5_tcc_pct,Total cloud cover (%),2,41,0.1404867980926406
+era5_tcc_pct,Total cloud cover (%),3,40,0.17507971901302485
+era5_tcc_pct,Total cloud cover (%),4,36,0.0002412946116959404
+era5_tcc_pct,Total cloud cover (%),5,39,0.06318613841769549
+era5_tcc_pct,Total cloud cover (%),6,36,-0.17170284387305013
+era5_tcc_pct,Total cloud cover (%),7,33,-0.14167810703817607
+era5_tcc_pct,Total cloud cover (%),8,37,-0.12874002752749886
+era5_tcc_pct,Total cloud cover (%),9,30,-0.1555913627828743
+era5_tcc_pct,Total cloud cover (%),10,30,-0.00303376883094029
+era5_tcc_pct,Total cloud cover (%),11,30,0.3392777404691901
+era5_tcc_pct,Total cloud cover (%),12,27,-0.33452432875789956
+era5_tcc_pct,Total cloud cover (%),13,29,0.13898793574692325
+era5_tcc_pct,Total cloud cover (%),14,25,0.24323229081826175
+era5_tcc_pct,Total cloud cover (%),15,25,-0.07872010188473279
+era5_tcc_pct,Total cloud cover (%),16,31,-0.14627223131332243
+era5_tcc_pct,Total cloud cover (%),17,28,0.10479725938859515
+era5_tcc_pct,Total cloud cover (%),18,30,-0.423212610685464
+era5_tcc_pct,Total cloud cover (%),19,28,0.17629447107888868
+era5_tcc_pct,Total cloud cover (%),20,25,-0.1799629080480285
+era5_tcc_pct,Total cloud cover (%),21,28,-0.11698879902413233
+era5_tcc_pct,Total cloud cover (%),22,25,0.09445914118265854
+era5_tcc_pct,Total cloud cover (%),23,26,-0.14179634905810953
+era5_tcc_pct,Total cloud cover (%),24,28,0.26607016356350416
+era5_lcc_pct,Low cloud cover (%),0,59,1.0
+era5_lcc_pct,Low cloud cover (%),1,44,-0.032877503464114104
+era5_lcc_pct,Low cloud cover (%),2,41,-0.11883960857644618
+era5_lcc_pct,Low cloud cover (%),3,40,0.30403747120019226
+era5_lcc_pct,Low cloud cover (%),4,36,-0.15487284400981144
+era5_lcc_pct,Low cloud cover (%),5,39,0.2717924315101349
+era5_lcc_pct,Low cloud cover (%),6,36,-0.05521188279729486
+era5_lcc_pct,Low cloud cover (%),7,33,-0.13792627423687406
+era5_lcc_pct,Low cloud cover (%),8,37,0.4102182629100569
+era5_lcc_pct,Low cloud cover (%),9,30,-0.08996267915005492
+era5_lcc_pct,Low cloud cover (%),10,30,-0.2979701689209672
+era5_lcc_pct,Low cloud cover (%),11,30,-0.2708085524669755
+era5_lcc_pct,Low cloud cover (%),12,27,-0.14675945707433752
+era5_lcc_pct,Low cloud cover (%),13,29,0.21046309919249864
+era5_lcc_pct,Low cloud cover (%),14,25,-0.08948840140149317
+era5_lcc_pct,Low cloud cover (%),15,25,-0.05507404207244589
+era5_lcc_pct,Low cloud cover (%),16,31,-0.02478896791533205
+era5_lcc_pct,Low cloud cover (%),17,28,-0.1684764381865575
+era5_lcc_pct,Low cloud cover (%),18,30,-0.06518181177729558
+era5_lcc_pct,Low cloud cover (%),19,28,0.03225475940509832
+era5_lcc_pct,Low cloud cover (%),20,25,-0.2575153425033313
+era5_lcc_pct,Low cloud cover (%),21,28,0.3524803798455509
+era5_lcc_pct,Low cloud cover (%),22,25,0.16661859122693515
+era5_lcc_pct,Low cloud cover (%),23,26,-0.147964978989598
+era5_lcc_pct,Low cloud cover (%),24,28,0.3042149786841002
+era5_mcc_pct,Medium cloud cover (%),0,59,1.0
+era5_mcc_pct,Medium cloud cover (%),1,44,0.03500661308890345
+era5_mcc_pct,Medium cloud cover (%),2,41,-0.006609596586475401
+era5_mcc_pct,Medium cloud cover (%),3,40,0.17498823039527536
+era5_mcc_pct,Medium cloud cover (%),4,36,-0.1930765055882435
+era5_mcc_pct,Medium cloud cover (%),5,39,0.0022702690975376296
+era5_mcc_pct,Medium cloud cover (%),6,36,-0.2767800268232687
+era5_mcc_pct,Medium cloud cover (%),7,33,-0.2664102704236907
+era5_mcc_pct,Medium cloud cover (%),8,37,-0.19052883781373595
+era5_mcc_pct,Medium cloud cover (%),9,30,-0.18460267028774624
+era5_mcc_pct,Medium cloud cover (%),10,30,0.14805561569740494
+era5_mcc_pct,Medium cloud cover (%),11,30,0.27507992404284715
+era5_mcc_pct,Medium cloud cover (%),12,27,0.04294374820019886
+era5_mcc_pct,Medium cloud cover (%),13,29,0.19387294556611823
+era5_mcc_pct,Medium cloud cover (%),14,25,0.2614494764083005
+era5_mcc_pct,Medium cloud cover (%),15,25,-0.3097075908371544
+era5_mcc_pct,Medium cloud cover (%),16,31,0.020393447300583196
+era5_mcc_pct,Medium cloud cover (%),17,28,0.15995840926451194
+era5_mcc_pct,Medium cloud cover (%),18,30,-0.41620235352450624
+era5_mcc_pct,Medium cloud cover (%),19,28,-0.07698346621019042
+era5_mcc_pct,Medium cloud cover (%),20,25,-0.286426187178337
+era5_mcc_pct,Medium cloud cover (%),21,28,-0.06908275554044278
+era5_mcc_pct,Medium cloud cover (%),22,25,-0.03007516354692224
+era5_mcc_pct,Medium cloud cover (%),23,26,0.11147930986430028
+era5_mcc_pct,Medium cloud cover (%),24,28,0.4835370969006789
+era5_hcc_pct,High cloud cover (%),0,59,1.0
+era5_hcc_pct,High cloud cover (%),1,44,0.04668179539977125
+era5_hcc_pct,High cloud cover (%),2,41,-0.06359162870653347
+era5_hcc_pct,High cloud cover (%),3,40,0.11699069835414361
+era5_hcc_pct,High cloud cover (%),4,36,0.06086865440356252
+era5_hcc_pct,High cloud cover (%),5,39,0.14352297957287816
+era5_hcc_pct,High cloud cover (%),6,36,-0.1524688906487254
+era5_hcc_pct,High cloud cover (%),7,33,-0.08874065190613219
+era5_hcc_pct,High cloud cover (%),8,37,-0.2754517805469751
+era5_hcc_pct,High cloud cover (%),9,30,-0.18766011429329002
+era5_hcc_pct,High cloud cover (%),10,30,-0.11419380894431314
+era5_hcc_pct,High cloud cover (%),11,30,-0.3028145415194904
+era5_hcc_pct,High cloud cover (%),12,27,0.066268769869379
+era5_hcc_pct,High cloud cover (%),13,29,-0.11275175904198703
+era5_hcc_pct,High cloud cover (%),14,25,-0.012484430299875261
+era5_hcc_pct,High cloud cover (%),15,25,-0.002259776144663735
+era5_hcc_pct,High cloud cover (%),16,31,-0.3004804712953826
+era5_hcc_pct,High cloud cover (%),17,28,-0.09709106050248437
+era5_hcc_pct,High cloud cover (%),18,30,-0.05400373923106109
+era5_hcc_pct,High cloud cover (%),19,28,-0.32405931373725655
+era5_hcc_pct,High cloud cover (%),20,25,0.04697509916626982
+era5_hcc_pct,High cloud cover (%),21,28,0.5369828391518436
+era5_hcc_pct,High cloud cover (%),22,25,-0.14353586555466152
+era5_hcc_pct,High cloud cover (%),23,26,-0.23593392405312044
+era5_hcc_pct,High cloud cover (%),24,28,0.5179093367744864
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),0,59,1.0
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),1,44,-0.04254902058773918
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),2,41,0.009750394140053383
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),3,40,0.150661008082354
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),4,36,0.0402649810544083
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),5,39,0.1202079912590737
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),6,36,-0.32227224187465625
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),7,33,-0.22005725124154926
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),8,37,-0.2089184682402183
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),9,30,-0.2178025515950607
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),10,30,0.16846075020570705
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),11,30,0.19794263740602921
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),12,27,-0.14809965985225165
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),13,29,0.16521729455988945
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),14,25,0.4075945118275998
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),15,25,-0.15626450664352182
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),16,31,-0.11979010347498872
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),17,28,0.1907206885301261
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),18,30,-0.4453702682463078
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),19,28,0.09929092438402103
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),20,25,-0.24337452843984744
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),21,28,-0.1302862527201994
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),22,25,-0.05090706645677633
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),23,26,-0.10006832859433924
+era5_cloud_layer_sum_pct_points,Cloud layer sum (% points),24,28,0.3374236864593576
+era5_strd_log1p,log1p(surface thermal radiation downwards),0,59,1.0
+era5_strd_log1p,log1p(surface thermal radiation downwards),1,44,-0.25892480278670743
+era5_strd_log1p,log1p(surface thermal radiation downwards),2,41,-0.23239207028330694
+era5_strd_log1p,log1p(surface thermal radiation downwards),3,40,0.4330676427786649
+era5_strd_log1p,log1p(surface thermal radiation downwards),4,36,-0.03966229391915475
+era5_strd_log1p,log1p(surface thermal radiation downwards),5,39,0.6855339176473778
+era5_strd_log1p,log1p(surface thermal radiation downwards),6,36,-0.3811823837704804
+era5_strd_log1p,log1p(surface thermal radiation downwards),7,33,-0.3201494634381695
+era5_strd_log1p,log1p(surface thermal radiation downwards),8,37,0.6699164437836834
+era5_strd_log1p,log1p(surface thermal radiation downwards),9,30,-0.1271038175229863
+era5_strd_log1p,log1p(surface thermal radiation downwards),10,30,-0.03345729672903784
+era5_strd_log1p,log1p(surface thermal radiation downwards),11,30,-0.04889225359963874
+era5_strd_log1p,log1p(surface thermal radiation downwards),12,27,-0.08267040913008221
+era5_strd_log1p,log1p(surface thermal radiation downwards),13,29,0.6919424244184451
+era5_strd_log1p,log1p(surface thermal radiation downwards),14,25,-0.48165882883156796
+era5_strd_log1p,log1p(surface thermal radiation downwards),15,25,-0.2122892480273449
+era5_strd_log1p,log1p(surface thermal radiation downwards),16,31,0.5933086860153641
+era5_strd_log1p,log1p(surface thermal radiation downwards),17,28,-0.16647097715246242
+era5_strd_log1p,log1p(surface thermal radiation downwards),18,30,-0.18583849338639144
+era5_strd_log1p,log1p(surface thermal radiation downwards),19,28,0.1599835655196734
+era5_strd_log1p,log1p(surface thermal radiation downwards),20,25,-0.14050994438105205
+era5_strd_log1p,log1p(surface thermal radiation downwards),21,28,0.7522370772491759
+era5_strd_log1p,log1p(surface thermal radiation downwards),22,25,-0.28999223634416194
+era5_strd_log1p,log1p(surface thermal radiation downwards),23,26,-0.4094166534707399
+era5_strd_log1p,log1p(surface thermal radiation downwards),24,28,0.781422306232008
+era5_t2m_c,2 m temperature (C),0,59,1.0
+era5_t2m_c,2 m temperature (C),1,44,-0.26252592014446563
+era5_t2m_c,2 m temperature (C),2,41,-0.2319962093871054
+era5_t2m_c,2 m temperature (C),3,40,0.48889665763818196
+era5_t2m_c,2 m temperature (C),4,36,-0.05448927778086477
+era5_t2m_c,2 m temperature (C),5,39,0.6486146416012587
+era5_t2m_c,2 m temperature (C),6,36,-0.4143955531062525
+era5_t2m_c,2 m temperature (C),7,33,-0.3694883621923768
+era5_t2m_c,2 m temperature (C),8,37,0.7259999273296566
+era5_t2m_c,2 m temperature (C),9,30,-0.1624417593225566
+era5_t2m_c,2 m temperature (C),10,30,-0.06928308237975629
+era5_t2m_c,2 m temperature (C),11,30,0.00015914660448194067
+era5_t2m_c,2 m temperature (C),12,27,-0.08209240331455671
+era5_t2m_c,2 m temperature (C),13,29,0.7396640102659784
+era5_t2m_c,2 m temperature (C),14,25,-0.44309749050356684
+era5_t2m_c,2 m temperature (C),15,25,-0.320940063375066
+era5_t2m_c,2 m temperature (C),16,31,0.6570847430376535
+era5_t2m_c,2 m temperature (C),17,28,-0.19440347447970624
+era5_t2m_c,2 m temperature (C),18,30,-0.2278704989878403
+era5_t2m_c,2 m temperature (C),19,28,0.1056797600999255
+era5_t2m_c,2 m temperature (C),20,25,-0.18285056287648832
+era5_t2m_c,2 m temperature (C),21,28,0.8042829928444236
+era5_t2m_c,2 m temperature (C),22,25,-0.26431361572773543
+era5_t2m_c,2 m temperature (C),23,26,-0.45165063726295474
+era5_t2m_c,2 m temperature (C),24,28,0.8182189709131761
+era5_d2m_c,2 m dewpoint (C),0,59,1.0
+era5_d2m_c,2 m dewpoint (C),1,44,-0.2936244337263319
+era5_d2m_c,2 m dewpoint (C),2,41,-0.2522022211258593
+era5_d2m_c,2 m dewpoint (C),3,40,0.5098856798613556
+era5_d2m_c,2 m dewpoint (C),4,36,-0.07906484074400955
+era5_d2m_c,2 m dewpoint (C),5,39,0.7116299445783348
+era5_d2m_c,2 m dewpoint (C),6,36,-0.3586092547113143
+era5_d2m_c,2 m dewpoint (C),7,33,-0.3776905380132314
+era5_d2m_c,2 m dewpoint (C),8,37,0.7345619735743166
+era5_d2m_c,2 m dewpoint (C),9,30,-0.17937547528510883
+era5_d2m_c,2 m dewpoint (C),10,30,-0.012957130630230242
+era5_d2m_c,2 m dewpoint (C),11,30,0.04888614998730721
+era5_d2m_c,2 m dewpoint (C),12,27,-0.15835397777288693
+era5_d2m_c,2 m dewpoint (C),13,29,0.7211013352418341
+era5_d2m_c,2 m dewpoint (C),14,25,-0.4480440330680297
+era5_d2m_c,2 m dewpoint (C),15,25,-0.27102868199269914
+era5_d2m_c,2 m dewpoint (C),16,31,0.7152485828148388
+era5_d2m_c,2 m dewpoint (C),17,28,-0.2429750948272394
+era5_d2m_c,2 m dewpoint (C),18,30,-0.19603926873887897
+era5_d2m_c,2 m dewpoint (C),19,28,0.19105386929047502
+era5_d2m_c,2 m dewpoint (C),20,25,-0.1887686554807164
+era5_d2m_c,2 m dewpoint (C),21,28,0.7807452898648773
+era5_d2m_c,2 m dewpoint (C),22,25,-0.2922503388103331
+era5_d2m_c,2 m dewpoint (C),23,26,-0.45305948076271707
+era5_d2m_c,2 m dewpoint (C),24,28,0.8047026025930398
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),0,59,1.0
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),1,44,0.06694444255507094
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),2,41,-0.015968258888721013
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),3,40,0.06461905005064285
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),4,36,-0.017379059094123316
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),5,39,0.06626650195301453
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),6,36,-0.4429956109623846
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),7,33,-0.4916092574392614
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),8,37,-0.12568250874204404
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),9,30,-0.0047287599539172906
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),10,30,-0.020503595378810278
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),11,30,0.010434996877100863
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),12,27,0.21453996310932882
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),13,29,0.2939844195598463
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),14,25,0.20827389208601668
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),15,25,-0.1629114999304946
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),16,31,-0.3647690813937784
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),17,28,0.07309876093024976
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),18,30,-0.45013402633548816
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),19,28,-0.3567976736154785
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),20,25,-0.1509103657461358
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),21,28,-0.09391985124679983
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),22,25,0.2199821063951934
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),23,26,0.15080256465226155
+era5_dewpoint_depression_log1p,log1p(dewpoint depression),24,28,0.3004989495681212
+era5_tcwv_log1p,log1p(total column water vapour),0,59,1.0
+era5_tcwv_log1p,log1p(total column water vapour),1,44,-0.3069282026519745
+era5_tcwv_log1p,log1p(total column water vapour),2,41,-0.26596368666484066
+era5_tcwv_log1p,log1p(total column water vapour),3,40,0.5287614311273287
+era5_tcwv_log1p,log1p(total column water vapour),4,36,-0.07335677834966946
+era5_tcwv_log1p,log1p(total column water vapour),5,39,0.7324008701437984
+era5_tcwv_log1p,log1p(total column water vapour),6,36,-0.36912317375802417
+era5_tcwv_log1p,log1p(total column water vapour),7,33,-0.3837095149350786
+era5_tcwv_log1p,log1p(total column water vapour),8,37,0.7979035750219862
+era5_tcwv_log1p,log1p(total column water vapour),9,30,-0.194679719437769
+era5_tcwv_log1p,log1p(total column water vapour),10,30,-0.04322702675705723
+era5_tcwv_log1p,log1p(total column water vapour),11,30,0.06895011402450309
+era5_tcwv_log1p,log1p(total column water vapour),12,27,-0.1683784446856265
+era5_tcwv_log1p,log1p(total column water vapour),13,29,0.790463290803031
+era5_tcwv_log1p,log1p(total column water vapour),14,25,-0.475657875122982
+era5_tcwv_log1p,log1p(total column water vapour),15,25,-0.3215399670772374
+era5_tcwv_log1p,log1p(total column water vapour),16,31,0.7546221364875108
+era5_tcwv_log1p,log1p(total column water vapour),17,28,-0.20483523900098086
+era5_tcwv_log1p,log1p(total column water vapour),18,30,-0.1831384152057237
+era5_tcwv_log1p,log1p(total column water vapour),19,28,0.11022213218509676
+era5_tcwv_log1p,log1p(total column water vapour),20,25,-0.1729412763395138
+era5_tcwv_log1p,log1p(total column water vapour),21,28,0.7832038216387694
+era5_tcwv_log1p,log1p(total column water vapour),22,25,-0.3615719397657889
+era5_tcwv_log1p,log1p(total column water vapour),23,26,-0.4500928520556019
+era5_tcwv_log1p,log1p(total column water vapour),24,28,0.7730052525575822
+era5_wind10_speed_log1p,log1p(10 m wind speed),0,59,1.0
+era5_wind10_speed_log1p,log1p(10 m wind speed),1,44,0.14792068492571772
+era5_wind10_speed_log1p,log1p(10 m wind speed),2,41,-0.13860859261552344
+era5_wind10_speed_log1p,log1p(10 m wind speed),3,40,0.10280396571463238
+era5_wind10_speed_log1p,log1p(10 m wind speed),4,36,-0.20470844918574801
+era5_wind10_speed_log1p,log1p(10 m wind speed),5,39,-0.30756503144293057
+era5_wind10_speed_log1p,log1p(10 m wind speed),6,36,-0.006320652507071259
+era5_wind10_speed_log1p,log1p(10 m wind speed),7,33,0.03052481579191543
+era5_wind10_speed_log1p,log1p(10 m wind speed),8,37,-0.2925539655366086
+era5_wind10_speed_log1p,log1p(10 m wind speed),9,30,-0.09452055492346334
+era5_wind10_speed_log1p,log1p(10 m wind speed),10,30,-0.024475631132134138
+era5_wind10_speed_log1p,log1p(10 m wind speed),11,30,0.007789125993941634
+era5_wind10_speed_log1p,log1p(10 m wind speed),12,27,-0.02679210075425123
+era5_wind10_speed_log1p,log1p(10 m wind speed),13,29,-0.05218893539353621
+era5_wind10_speed_log1p,log1p(10 m wind speed),14,25,0.19862683231826878
+era5_wind10_speed_log1p,log1p(10 m wind speed),15,25,-0.20902758213923317
+era5_wind10_speed_log1p,log1p(10 m wind speed),16,31,-0.4433469119309183
+era5_wind10_speed_log1p,log1p(10 m wind speed),17,28,-0.0168096316074558
+era5_wind10_speed_log1p,log1p(10 m wind speed),18,30,-0.17716647527206655
+era5_wind10_speed_log1p,log1p(10 m wind speed),19,28,-0.03121971083488152
+era5_wind10_speed_log1p,log1p(10 m wind speed),20,25,0.16652500655455743
+era5_wind10_speed_log1p,log1p(10 m wind speed),21,28,0.037711708809486856
+era5_wind10_speed_log1p,log1p(10 m wind speed),22,25,-0.0852671615062822
+era5_wind10_speed_log1p,log1p(10 m wind speed),23,26,0.26174165516634823
+era5_wind10_speed_log1p,log1p(10 m wind speed),24,28,0.5282579103160614
+era5_tp_log1p,log1p(total precipitation),0,59,1.0
+era5_tp_log1p,log1p(total precipitation),1,44,-0.24287527512814147
+era5_tp_log1p,log1p(total precipitation),2,41,0.0604421554296954
+era5_tp_log1p,log1p(total precipitation),3,40,-0.0848374453733105
+era5_tp_log1p,log1p(total precipitation),4,36,-0.0763683838083137
+era5_tp_log1p,log1p(total precipitation),5,39,0.18711117150708098
+era5_tp_log1p,log1p(total precipitation),6,36,-0.015812506443741037
+era5_tp_log1p,log1p(total precipitation),7,33,-0.08250020050689112
+era5_tp_log1p,log1p(total precipitation),8,37,-0.17546042902364056
+era5_tp_log1p,log1p(total precipitation),9,30,0.02421671682091158
+era5_tp_log1p,log1p(total precipitation),10,30,-0.19368717735436655
+era5_tp_log1p,log1p(total precipitation),11,30,0.10926096195167381
+era5_tp_log1p,log1p(total precipitation),12,27,-0.22692985423497472
+era5_tp_log1p,log1p(total precipitation),13,29,0.13489592360772254
+era5_tp_log1p,log1p(total precipitation),14,25,0.1425145445541088
+era5_tp_log1p,log1p(total precipitation),15,25,0.06571107337916564
+era5_tp_log1p,log1p(total precipitation),16,31,-0.2849896354812994
+era5_tp_log1p,log1p(total precipitation),17,28,0.08980003238853625
+era5_tp_log1p,log1p(total precipitation),18,30,-0.29818086173125424
+era5_tp_log1p,log1p(total precipitation),19,28,0.40754121234404195
+era5_tp_log1p,log1p(total precipitation),20,25,-0.14348009913645127
+era5_tp_log1p,log1p(total precipitation),21,28,-0.3092246850594572
+era5_tp_log1p,log1p(total precipitation),22,25,-0.08257520914723725
+era5_tp_log1p,log1p(total precipitation),23,26,-0.24699676050128547
+era5_tp_log1p,log1p(total precipitation),24,28,0.21520328080764417
+era5_cp_log1p,log1p(convective precipitation),0,59,1.0
+era5_cp_log1p,log1p(convective precipitation),1,44,-0.15560750153978808
+era5_cp_log1p,log1p(convective precipitation),2,41,0.08970754405269186
+era5_cp_log1p,log1p(convective precipitation),3,40,0.09014038396142088
+era5_cp_log1p,log1p(convective precipitation),4,36,-0.06930187095995889
+era5_cp_log1p,log1p(convective precipitation),5,39,0.34028479929705513
+era5_cp_log1p,log1p(convective precipitation),6,36,-0.05376257978653559
+era5_cp_log1p,log1p(convective precipitation),7,33,-0.08307195315346824
+era5_cp_log1p,log1p(convective precipitation),8,37,-0.034384091361969286
+era5_cp_log1p,log1p(convective precipitation),9,30,-0.0007520808450005585
+era5_cp_log1p,log1p(convective precipitation),10,30,-0.21862634120500138
+era5_cp_log1p,log1p(convective precipitation),11,30,-0.007156793418076265
+era5_cp_log1p,log1p(convective precipitation),12,27,-0.2704328147189761
+era5_cp_log1p,log1p(convective precipitation),13,29,0.2245125494813507
+era5_cp_log1p,log1p(convective precipitation),14,25,-0.18540281920251234
+era5_cp_log1p,log1p(convective precipitation),15,25,0.11485058792511435
+era5_cp_log1p,log1p(convective precipitation),16,31,-0.1244173482494193
+era5_cp_log1p,log1p(convective precipitation),17,28,0.06712590353172335
+era5_cp_log1p,log1p(convective precipitation),18,30,-0.10609869092200627
+era5_cp_log1p,log1p(convective precipitation),19,28,0.09494749156695464
+era5_cp_log1p,log1p(convective precipitation),20,25,-0.13637913329983786
+era5_cp_log1p,log1p(convective precipitation),21,28,-0.16852046361593287
+era5_cp_log1p,log1p(convective precipitation),22,25,-0.05244837517290045
+era5_cp_log1p,log1p(convective precipitation),23,26,-0.1809675688558045
+era5_cp_log1p,log1p(convective precipitation),24,28,0.30321044509965006
+era5_cape_log1p,log1p(CAPE),0,59,1.0
+era5_cape_log1p,log1p(CAPE),1,44,-0.23552997920450502
+era5_cape_log1p,log1p(CAPE),2,41,-0.013791344158357545
+era5_cape_log1p,log1p(CAPE),3,40,0.2560469521263222
+era5_cape_log1p,log1p(CAPE),4,36,-0.07159372456330525
+era5_cape_log1p,log1p(CAPE),5,39,0.39467832157537963
+era5_cape_log1p,log1p(CAPE),6,36,-0.13662922649871104
+era5_cape_log1p,log1p(CAPE),7,33,-0.3549075643638964
+era5_cape_log1p,log1p(CAPE),8,37,0.4342956815333168
+era5_cape_log1p,log1p(CAPE),9,30,-0.19860334735521906
+era5_cape_log1p,log1p(CAPE),10,30,-0.05869108038262698
+era5_cape_log1p,log1p(CAPE),11,30,0.061539895049969415
+era5_cape_log1p,log1p(CAPE),12,27,-0.12444772273834262
+era5_cape_log1p,log1p(CAPE),13,29,0.6152998078833724
+era5_cape_log1p,log1p(CAPE),14,25,-0.378850850710484
+era5_cape_log1p,log1p(CAPE),15,25,-0.23392928445659325
+era5_cape_log1p,log1p(CAPE),16,31,0.37903470848950027
+era5_cape_log1p,log1p(CAPE),17,28,-0.286863280265089
+era5_cape_log1p,log1p(CAPE),18,30,-0.13634339070778484
+era5_cape_log1p,log1p(CAPE),19,28,0.15304365321658206
+era5_cape_log1p,log1p(CAPE),20,25,-0.3443289793344985
+era5_cape_log1p,log1p(CAPE),21,28,0.5159531050236782
+era5_cape_log1p,log1p(CAPE),22,25,-0.31911962587746084
+era5_cape_log1p,log1p(CAPE),23,26,-0.3977664508940189
+era5_cape_log1p,log1p(CAPE),24,28,0.7671602732016618
+era5_blh_log1p,log1p(boundary layer height),0,59,1.0
+era5_blh_log1p,log1p(boundary layer height),1,44,0.04119403959795207
+era5_blh_log1p,log1p(boundary layer height),2,41,-0.14042892298491413
+era5_blh_log1p,log1p(boundary layer height),3,40,0.03409168420967541
+era5_blh_log1p,log1p(boundary layer height),4,36,-0.09205762262845563
+era5_blh_log1p,log1p(boundary layer height),5,39,0.04791132825554526
+era5_blh_log1p,log1p(boundary layer height),6,36,-0.18636912029100414
+era5_blh_log1p,log1p(boundary layer height),7,33,-0.10548604877353053
+era5_blh_log1p,log1p(boundary layer height),8,37,-0.35612136084900536
+era5_blh_log1p,log1p(boundary layer height),9,30,0.011053953403010769
+era5_blh_log1p,log1p(boundary layer height),10,30,0.22785927229024971
+era5_blh_log1p,log1p(boundary layer height),11,30,0.004908167185677248
+era5_blh_log1p,log1p(boundary layer height),12,27,0.0025662100368458655
+era5_blh_log1p,log1p(boundary layer height),13,29,-0.16588409048361077
+era5_blh_log1p,log1p(boundary layer height),14,25,0.2785739017788367
+era5_blh_log1p,log1p(boundary layer height),15,25,0.14780240465124256
+era5_blh_log1p,log1p(boundary layer height),16,31,-0.5033683693675276
+era5_blh_log1p,log1p(boundary layer height),17,28,-0.23973762537324314
+era5_blh_log1p,log1p(boundary layer height),18,30,-0.31630149179165296
+era5_blh_log1p,log1p(boundary layer height),19,28,0.06391815513559111
+era5_blh_log1p,log1p(boundary layer height),20,25,0.2521195002311608
+era5_blh_log1p,log1p(boundary layer height),21,28,-0.05905237981419319
+era5_blh_log1p,log1p(boundary layer height),22,25,-0.15497791211847667
+era5_blh_log1p,log1p(boundary layer height),23,26,0.07610912643799342
+era5_blh_log1p,log1p(boundary layer height),24,28,0.6090527592972367
+era5_sp_hpa,Surface pressure (hPa),0,59,1.0
+era5_sp_hpa,Surface pressure (hPa),1,44,0.1463921215012673
+era5_sp_hpa,Surface pressure (hPa),2,41,-0.06007444582581672
+era5_sp_hpa,Surface pressure (hPa),3,40,-0.11602227779475463
+era5_sp_hpa,Surface pressure (hPa),4,36,-0.06514452326151543
+era5_sp_hpa,Surface pressure (hPa),5,39,0.04033804420698335
+era5_sp_hpa,Surface pressure (hPa),6,36,0.08601542040916912
+era5_sp_hpa,Surface pressure (hPa),7,33,-0.14057303267655305
+era5_sp_hpa,Surface pressure (hPa),8,37,-0.2642293458344983
+era5_sp_hpa,Surface pressure (hPa),9,30,-0.11117283398031276
+era5_sp_hpa,Surface pressure (hPa),10,30,-0.18299727682857936
+era5_sp_hpa,Surface pressure (hPa),11,30,0.10547094257446063
+era5_sp_hpa,Surface pressure (hPa),12,27,-0.19088914105026908
+era5_sp_hpa,Surface pressure (hPa),13,29,0.08838224833341364
+era5_sp_hpa,Surface pressure (hPa),14,25,0.23404154220901952
+era5_sp_hpa,Surface pressure (hPa),15,25,-0.06651013885896505
+era5_sp_hpa,Surface pressure (hPa),16,31,-0.45965997763486033
+era5_sp_hpa,Surface pressure (hPa),17,28,-0.26723457564394115
+era5_sp_hpa,Surface pressure (hPa),18,30,-0.10871482392097206
+era5_sp_hpa,Surface pressure (hPa),19,28,0.1314027323591915
+era5_sp_hpa,Surface pressure (hPa),20,25,0.45454806259764136
+era5_sp_hpa,Surface pressure (hPa),21,28,-0.2512703677724758
+era5_sp_hpa,Surface pressure (hPa),22,25,-0.3693431191073987
+era5_sp_hpa,Surface pressure (hPa),23,26,0.30934761552039597
+era5_sp_hpa,Surface pressure (hPa),24,28,0.5817317690049356
+era5_msl_hpa,Mean sea-level pressure (hPa),0,59,1.0
+era5_msl_hpa,Mean sea-level pressure (hPa),1,44,-0.013782685000615835
+era5_msl_hpa,Mean sea-level pressure (hPa),2,41,0.20109120459837038
+era5_msl_hpa,Mean sea-level pressure (hPa),3,40,-0.05967099360270648
+era5_msl_hpa,Mean sea-level pressure (hPa),4,36,-0.13316199963850872
+era5_msl_hpa,Mean sea-level pressure (hPa),5,39,-0.15143704243971529
+era5_msl_hpa,Mean sea-level pressure (hPa),6,36,0.0692857500663114
+era5_msl_hpa,Mean sea-level pressure (hPa),7,33,-0.19314054747632917
+era5_msl_hpa,Mean sea-level pressure (hPa),8,37,-0.10232098506652029
+era5_msl_hpa,Mean sea-level pressure (hPa),9,30,0.08846822176347222
+era5_msl_hpa,Mean sea-level pressure (hPa),10,30,0.011924203211118785
+era5_msl_hpa,Mean sea-level pressure (hPa),11,30,0.07288630295343806
+era5_msl_hpa,Mean sea-level pressure (hPa),12,27,0.26480222568703266
+era5_msl_hpa,Mean sea-level pressure (hPa),13,29,0.08610149335497151
+era5_msl_hpa,Mean sea-level pressure (hPa),14,25,-0.128707278200488
+era5_msl_hpa,Mean sea-level pressure (hPa),15,25,0.03073587174370142
+era5_msl_hpa,Mean sea-level pressure (hPa),16,31,-0.5562289507288524
+era5_msl_hpa,Mean sea-level pressure (hPa),17,28,0.03522332654880658
+era5_msl_hpa,Mean sea-level pressure (hPa),18,30,-0.14806100021344756
+era5_msl_hpa,Mean sea-level pressure (hPa),19,28,0.012422132211972366
+era5_msl_hpa,Mean sea-level pressure (hPa),20,25,-0.1330436728550843
+era5_msl_hpa,Mean sea-level pressure (hPa),21,28,-0.244453312470569
+era5_msl_hpa,Mean sea-level pressure (hPa),22,25,0.12670403805071856
+era5_msl_hpa,Mean sea-level pressure (hPa),23,26,0.15128219009932178
+era5_msl_hpa,Mean sea-level pressure (hPa),24,28,0.5566641584782028
+era5_i10fg_log1p,log1p(10 m wind gust),0,59,1.0
+era5_i10fg_log1p,log1p(10 m wind gust),1,44,0.05294677710093779
+era5_i10fg_log1p,log1p(10 m wind gust),2,41,-0.09225285399535203
+era5_i10fg_log1p,log1p(10 m wind gust),3,40,0.1362829308854394
+era5_i10fg_log1p,log1p(10 m wind gust),4,36,-0.2679838476821589
+era5_i10fg_log1p,log1p(10 m wind gust),5,39,-0.21247959879023592
+era5_i10fg_log1p,log1p(10 m wind gust),6,36,-0.089263613469336
+era5_i10fg_log1p,log1p(10 m wind gust),7,33,0.02152136325352024
+era5_i10fg_log1p,log1p(10 m wind gust),8,37,-0.3262319874113392
+era5_i10fg_log1p,log1p(10 m wind gust),9,30,-0.025599074384847934
+era5_i10fg_log1p,log1p(10 m wind gust),10,30,0.18111181939908716
+era5_i10fg_log1p,log1p(10 m wind gust),11,30,0.022195975578389718
+era5_i10fg_log1p,log1p(10 m wind gust),12,27,0.03491181592029939
+era5_i10fg_log1p,log1p(10 m wind gust),13,29,-0.038218005899669255
+era5_i10fg_log1p,log1p(10 m wind gust),14,25,0.2038486819248449
+era5_i10fg_log1p,log1p(10 m wind gust),15,25,-0.29109383468926825
+era5_i10fg_log1p,log1p(10 m wind gust),16,31,-0.31580772974349103
+era5_i10fg_log1p,log1p(10 m wind gust),17,28,-0.009662833403553525
+era5_i10fg_log1p,log1p(10 m wind gust),18,30,-0.2939795037690133
+era5_i10fg_log1p,log1p(10 m wind gust),19,28,-0.02422930680834147
+era5_i10fg_log1p,log1p(10 m wind gust),20,25,0.051582449291933126
+era5_i10fg_log1p,log1p(10 m wind gust),21,28,-0.008053457561391017
+era5_i10fg_log1p,log1p(10 m wind gust),22,25,0.006236880831120393
+era5_i10fg_log1p,log1p(10 m wind gust),23,26,0.24307959708327037
+era5_i10fg_log1p,log1p(10 m wind gust),24,28,0.511767659881331

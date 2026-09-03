@@ -1,0 +1,6 @@
+.DS_Store
+.cdsapirc
+data/
+*.grib
+*.grib.idx
+*.idx

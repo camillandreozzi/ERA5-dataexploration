@@ -10,3 +10,7 @@ current work is subset to a small time frame (2020-12-01 to 2020-12-05)
 4. data_overlap.py
 5. data_preprocessing.py
 6. explore_merged.py
+
+## For the modelling
+benchmark_lasso and benchmark_rf only model the mean function of OLR
+in rf_stkriging the attempt is to combine a non-linear mean modelling with a space-time kriging of the residuals 

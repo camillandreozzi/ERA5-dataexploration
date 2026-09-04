@@ -42,7 +42,6 @@ MIN_PAIRS_PER_BIN = 10
 MIN_TEMPORAL_PAIRS = 6
 
 PREFERRED_COVARIATES = [
-    "era5_swvl1",
     "era5_tcc",
     "era5_lcc",
     "era5_mcc",
@@ -72,92 +71,31 @@ DERIVED_COVARIATE_DEPENDENCIES = {
     "era5_cloud_layer_sum": ["era5_lcc", "era5_mcc", "era5_hcc"],
 }
 
-FRACTION_TO_PERCENT_COVARIATES = {
-    "era5_swvl1": "era5_swvl1_pct",
-    "era5_tcc": "era5_tcc_pct",
-    "era5_lcc": "era5_lcc_pct",
-    "era5_mcc": "era5_mcc_pct",
-    "era5_hcc": "era5_hcc_pct",
-}
-
-FRACTION_SUM_TO_PERCENT_POINT_COVARIATES = {
-    "era5_cloud_layer_sum": "era5_cloud_layer_sum_pct_points",
-}
-
-LOG1P_POSITIVE_COVARIATES = {
-    "era5_ssrd": "era5_ssrd_log1p",
-    "era5_strd": "era5_strd_log1p",
-    "era5_dewpoint_depression": "era5_dewpoint_depression_log1p",
-    "era5_tcwv": "era5_tcwv_log1p",
-    "era5_wind10_speed": "era5_wind10_speed_log1p",
-    "era5_tp": "era5_tp_log1p",
-    "era5_cp": "era5_cp_log1p",
-    "era5_cape": "era5_cape_log1p",
-    "era5_blh": "era5_blh_log1p",
-    "era5_i10fg": "era5_i10fg_log1p",
-}
-
-PASCAL_TO_HPA_COVARIATES = {
-    "era5_sp": "era5_sp_hpa",
-    "era5_msl": "era5_msl_hpa",
-}
-
-UNCHANGED_ANALYSIS_COVARIATES = {
-    "era5_t2m_c",
-    "era5_d2m_c",
-}
-
-COVARIATE_TRANSFORMS = {
-    **FRACTION_TO_PERCENT_COVARIATES,
-    **FRACTION_SUM_TO_PERCENT_POINT_COVARIATES,
-    **LOG1P_POSITIVE_COVARIATES,
-    **PASCAL_TO_HPA_COVARIATES,
-}
-
 VARIABLE_LABELS = {
     RADIANCE_COLUMN: "CLARA radiance",
-    "era5_swvl1": "Volumetric soil water layer 1",
-    "era5_swvl1_pct": "Volumetric soil water layer 1 (%)",
     "era5_tcc": "Total cloud cover",
-    "era5_tcc_pct": "Total cloud cover (%)",
     "era5_lcc": "Low cloud cover",
-    "era5_lcc_pct": "Low cloud cover (%)",
     "era5_mcc": "Medium cloud cover",
-    "era5_mcc_pct": "Medium cloud cover (%)",
     "era5_hcc": "High cloud cover",
-    "era5_hcc_pct": "High cloud cover (%)",
     "era5_ssrd": "Surface solar radiation downwards",
-    "era5_ssrd_log1p": "log1p(surface solar radiation downwards)",
     "era5_strd": "Surface thermal radiation downwards",
-    "era5_strd_log1p": "log1p(surface thermal radiation downwards)",
     "era5_t2m": "2 m temperature (K)",
     "era5_t2m_c": "2 m temperature (C)",
     "era5_d2m": "2 m dewpoint (K)",
     "era5_d2m_c": "2 m dewpoint (C)",
     "era5_dewpoint_depression": "Dewpoint depression (K)",
-    "era5_dewpoint_depression_log1p": "log1p(dewpoint depression)",
     "era5_tcwv": "Total column water vapour",
-    "era5_tcwv_log1p": "log1p(total column water vapour)",
     "era5_u10": "10 m east wind",
     "era5_v10": "10 m north wind",
     "era5_wind10_speed": "10 m wind speed",
-    "era5_wind10_speed_log1p": "log1p(10 m wind speed)",
     "era5_tp": "Total precipitation",
-    "era5_tp_log1p": "log1p(total precipitation)",
     "era5_cp": "Convective precipitation",
-    "era5_cp_log1p": "log1p(convective precipitation)",
     "era5_cape": "CAPE",
-    "era5_cape_log1p": "log1p(CAPE)",
     "era5_blh": "Boundary layer height",
-    "era5_blh_log1p": "log1p(boundary layer height)",
     "era5_sp": "Surface pressure",
-    "era5_sp_hpa": "Surface pressure (hPa)",
     "era5_msl": "Mean sea-level pressure",
-    "era5_msl_hpa": "Mean sea-level pressure (hPa)",
     "era5_i10fg": "10 m wind gust",
-    "era5_i10fg_log1p": "log1p(10 m wind gust)",
     "era5_cloud_layer_sum": "Cloud layer sum",
-    "era5_cloud_layer_sum_pct_points": "Cloud layer sum (% points)",
 }
 
 
@@ -245,65 +183,6 @@ def add_derived_covariates(frame):
     return frame
 
 
-def nonnegative_for_log1p(series):
-    values = pd.to_numeric(series, errors="coerce")
-    return values.where(values >= 0)
-
-
-def add_preprocessed_covariates(frame, source_covariates):
-    analysis_covariates = []
-    preprocessing_rows = []
-
-    for source_column in source_covariates:
-        if source_column not in frame:
-            continue
-
-        if source_column in FRACTION_TO_PERCENT_COVARIATES:
-            analysis_column = FRACTION_TO_PERCENT_COVARIATES[source_column]
-            frame[analysis_column] = frame[source_column] * 100.0
-            transform = "fraction_to_percent"
-
-        elif source_column in FRACTION_SUM_TO_PERCENT_POINT_COVARIATES:
-            analysis_column = FRACTION_SUM_TO_PERCENT_POINT_COVARIATES[source_column]
-            frame[analysis_column] = frame[source_column] * 100.0
-            transform = "fraction_sum_to_percent_points"
-
-        elif source_column in LOG1P_POSITIVE_COVARIATES:
-            analysis_column = LOG1P_POSITIVE_COVARIATES[source_column]
-            nonnegative = nonnegative_for_log1p(frame[source_column])
-            frame[analysis_column] = np.log1p(nonnegative)
-            transform = "negative_to_nan_then_log1p"
-
-        elif source_column in PASCAL_TO_HPA_COVARIATES:
-            analysis_column = PASCAL_TO_HPA_COVARIATES[source_column]
-            frame[analysis_column] = frame[source_column] / 100.0
-            transform = "pascal_to_hpa"
-
-        elif source_column in UNCHANGED_ANALYSIS_COVARIATES:
-            analysis_column = source_column
-            transform = "already_preprocessed"
-
-        else:
-            analysis_column = source_column
-            transform = "raw"
-
-        analysis_covariates.append(analysis_column)
-        preprocessing_rows.append(
-            {
-                "source_column": source_column,
-                "analysis_column": analysis_column,
-                "source_label": variable_label(source_column),
-                "analysis_label": variable_label(analysis_column),
-                "transform": transform,
-                "source_non_null": int(frame[source_column].notna().sum()),
-                "analysis_non_null": int(frame[analysis_column].notna().sum()),
-            }
-        )
-
-    preprocessing = pd.DataFrame(preprocessing_rows)
-    return analysis_covariates, preprocessing
-
-
 def load_matched_rows(path, schema_names, covariates):
     columns = columns_needed_for_matched_rows(schema_names, covariates)
     dataset = ds.dataset(path, format="parquet")
@@ -343,10 +222,7 @@ def usable_covariates(frame, covariates):
 
 
 def sample_frame(frame, max_rows, rng):
-    if max_rows is None:
-        return frame
-
-    if len(frame) <= max_rows:
+    if max_rows is None or len(frame) <= max_rows:
         return frame
 
     selected = rng.choice(frame.index.to_numpy(), size=max_rows, replace=False)
@@ -447,8 +323,7 @@ def build_hourly_match_summary(era5_hourly, matched):
     clara_hourly = matched_counts_by_hour(matched)
     hourly = era5_hourly.merge(clara_hourly, on=HOUR_COLUMN, how="left")
 
-    count_columns = ["clara_matched_cells", "clara_observations"]
-    for column in count_columns:
+    for column in ["clara_matched_cells", "clara_observations"]:
         hourly[column] = hourly[column].fillna(0).astype(int)
 
     hourly["clara_cell_match_rate"] = hourly["clara_matched_cells"] / hourly["era5_rows"]
@@ -623,8 +498,7 @@ def plot_radiance_vs_covariates(matched, covariates, rng):
     plot_variables = [
         row.variable
         for row in stats.itertuples()
-        if row.n >= MIN_NON_NULL_ROWS
-        and matched[row.variable].nunique(dropna=True) > 1
+        if row.n >= MIN_NON_NULL_ROWS and matched[row.variable].nunique(dropna=True) > 1
     ]
 
     if not plot_variables:
@@ -766,10 +640,12 @@ def sample_same_hour_pairs(matched, max_pairs, rng):
             "distance_km": distance_km,
         }
     )
+
     if use_all_pairs:
         print(f"Using all {len(pairs):,} same-hour spatial pairs")
     else:
         print(f"Sampled {len(pairs):,} same-hour spatial pairs from {total_possible:,} possible pairs")
+
     return pairs
 
 
@@ -1172,18 +1048,16 @@ def main():
 
     parquet_file = pq.ParquetFile(MERGED_PATH)
     schema_names = parquet_schema_names(MERGED_PATH)
-    source_covariates = available_base_covariates(schema_names)
+    covariates = available_base_covariates(schema_names)
 
     print(f"Reading merged dataset: {MERGED_PATH}")
     print(f"Total ERA5-left rows from metadata: {parquet_file.metadata.num_rows:,}")
-    print(f"Candidate source covariates: {', '.join(source_covariates)}")
+    print(f"Candidate covariates: {', '.join(covariates)}")
 
     era5_hourly = get_era5_hour_counts(MERGED_PATH, parquet_file)
-    matched = load_matched_rows(MERGED_PATH, schema_names, source_covariates)
-    covariates, preprocessing = add_preprocessed_covariates(matched, source_covariates)
-    save_dataframe(preprocessing, RESULTS_DIR / "covariate_preprocessing.csv")
+    matched = load_matched_rows(MERGED_PATH, schema_names, covariates)
     covariates = usable_covariates(matched, covariates)
-    print(f"Usable preprocessed covariates: {', '.join(covariates)}")
+    print(f"Usable covariates: {', '.join(covariates)}")
 
     summarize_matched_cells(parquet_file, era5_hourly, matched)
     rng = np.random.default_rng(RANDOM_SEED)

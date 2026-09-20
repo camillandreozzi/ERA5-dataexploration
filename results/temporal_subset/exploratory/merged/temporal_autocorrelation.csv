@@ -1,0 +1,226 @@
+variable,label,lag_hours,n_pairs,autocorrelation
+clara_radiance_hourly_mean,CLARA radiance,0,59,1.0
+clara_radiance_hourly_mean,CLARA radiance,1,44,0.09248615039138676
+clara_radiance_hourly_mean,CLARA radiance,2,41,-0.08924345434847208
+clara_radiance_hourly_mean,CLARA radiance,3,40,-0.09154713465836994
+clara_radiance_hourly_mean,CLARA radiance,4,36,0.13131848668759752
+clara_radiance_hourly_mean,CLARA radiance,5,39,0.13830780297576536
+clara_radiance_hourly_mean,CLARA radiance,6,36,-0.10430620907182649
+clara_radiance_hourly_mean,CLARA radiance,7,33,0.09226618579820862
+clara_radiance_hourly_mean,CLARA radiance,8,37,-0.07613577185608164
+clara_radiance_hourly_mean,CLARA radiance,9,30,-0.19340581324826558
+clara_radiance_hourly_mean,CLARA radiance,10,30,-0.04859199399103188
+clara_radiance_hourly_mean,CLARA radiance,11,30,-0.12925663085218067
+clara_radiance_hourly_mean,CLARA radiance,12,27,0.054734074681861346
+clara_radiance_hourly_mean,CLARA radiance,13,29,-0.17905718085613773
+clara_radiance_hourly_mean,CLARA radiance,14,25,0.11911684785403871
+clara_radiance_hourly_mean,CLARA radiance,15,25,-0.28647557128892087
+clara_radiance_hourly_mean,CLARA radiance,16,31,-0.1655021504287486
+clara_radiance_hourly_mean,CLARA radiance,17,28,0.08988532281514364
+clara_radiance_hourly_mean,CLARA radiance,18,30,-0.1113834305577351
+clara_radiance_hourly_mean,CLARA radiance,19,28,-0.07213231611123472
+clara_radiance_hourly_mean,CLARA radiance,20,25,0.09391183653333761
+clara_radiance_hourly_mean,CLARA radiance,21,28,0.09249036423767736
+clara_radiance_hourly_mean,CLARA radiance,22,25,-0.15093403722454918
+clara_radiance_hourly_mean,CLARA radiance,23,26,-0.05048863169931349
+clara_radiance_hourly_mean,CLARA radiance,24,28,0.3473247603071811
+era5_lcc,Low cloud cover,0,59,1.0
+era5_lcc,Low cloud cover,1,44,-0.032877506182757366
+era5_lcc,Low cloud cover,2,41,-0.11883963138223497
+era5_lcc,Low cloud cover,3,40,0.30403745121807624
+era5_lcc,Low cloud cover,4,36,-0.15487284339386997
+era5_lcc,Low cloud cover,5,39,0.271792427442049
+era5_lcc,Low cloud cover,6,36,-0.05521189438980261
+era5_lcc,Low cloud cover,7,33,-0.13792626030331798
+era5_lcc,Low cloud cover,8,37,0.41021830137756193
+era5_lcc,Low cloud cover,9,30,-0.08996265692358854
+era5_lcc,Low cloud cover,10,30,-0.29797016631041684
+era5_lcc,Low cloud cover,11,30,-0.2708085526485304
+era5_lcc,Low cloud cover,12,27,-0.14675945197213183
+era5_lcc,Low cloud cover,13,29,0.2104630923705733
+era5_lcc,Low cloud cover,14,25,-0.08948838736481828
+era5_lcc,Low cloud cover,15,25,-0.05507402910868241
+era5_lcc,Low cloud cover,16,31,-0.024788962584703735
+era5_lcc,Low cloud cover,17,28,-0.168476430049654
+era5_lcc,Low cloud cover,18,30,-0.06518178796805466
+era5_lcc,Low cloud cover,19,28,0.0322547539588075
+era5_lcc,Low cloud cover,20,25,-0.2575153637805641
+era5_lcc,Low cloud cover,21,28,0.3524803749571185
+era5_lcc,Low cloud cover,22,25,0.16661857072447536
+era5_lcc,Low cloud cover,23,26,-0.14796496992425603
+era5_lcc,Low cloud cover,24,28,0.30421497251690016
+era5_mcc,Medium cloud cover,0,59,1.0
+era5_mcc,Medium cloud cover,1,44,0.035006602272935575
+era5_mcc,Medium cloud cover,2,41,-0.006609607895649037
+era5_mcc,Medium cloud cover,3,40,0.17498820114568495
+era5_mcc,Medium cloud cover,4,36,-0.19307650359229167
+era5_mcc,Medium cloud cover,5,39,0.002270278450369629
+era5_mcc,Medium cloud cover,6,36,-0.2767800402539897
+era5_mcc,Medium cloud cover,7,33,-0.266410271455054
+era5_mcc,Medium cloud cover,8,37,-0.1905288126819919
+era5_mcc,Medium cloud cover,9,30,-0.1846026713534156
+era5_mcc,Medium cloud cover,10,30,0.14805564591041018
+era5_mcc,Medium cloud cover,11,30,0.2750799470513105
+era5_mcc,Medium cloud cover,12,27,0.04294376985225701
+era5_mcc,Medium cloud cover,13,29,0.19387298397883607
+era5_mcc,Medium cloud cover,14,25,0.26144948190947825
+era5_mcc,Medium cloud cover,15,25,-0.30970759622108246
+era5_mcc,Medium cloud cover,16,31,0.020393435886344735
+era5_mcc,Medium cloud cover,17,28,0.15995842606052382
+era5_mcc,Medium cloud cover,18,30,-0.416202360064541
+era5_mcc,Medium cloud cover,19,28,-0.07698349814269595
+era5_mcc,Medium cloud cover,20,25,-0.2864261859706725
+era5_mcc,Medium cloud cover,21,28,-0.0690827556295782
+era5_mcc,Medium cloud cover,22,25,-0.030075166634238287
+era5_mcc,Medium cloud cover,23,26,0.11147929056420494
+era5_mcc,Medium cloud cover,24,28,0.4835370652239705
+era5_hcc,High cloud cover,0,59,1.0
+era5_hcc,High cloud cover,1,44,0.04668180976060365
+era5_hcc,High cloud cover,2,41,-0.0635916161631368
+era5_hcc,High cloud cover,3,40,0.11699070216927888
+era5_hcc,High cloud cover,4,36,0.060868656791023226
+era5_hcc,High cloud cover,5,39,0.14352296013239618
+era5_hcc,High cloud cover,6,36,-0.152468876354648
+era5_hcc,High cloud cover,7,33,-0.08874065435400855
+era5_hcc,High cloud cover,8,37,-0.2754517822327343
+era5_hcc,High cloud cover,9,30,-0.1876601286919557
+era5_hcc,High cloud cover,10,30,-0.11419380972760672
+era5_hcc,High cloud cover,11,30,-0.30281451731586834
+era5_hcc,High cloud cover,12,27,0.06626876842298231
+era5_hcc,High cloud cover,13,29,-0.11275177604195127
+era5_hcc,High cloud cover,14,25,-0.01248441189428732
+era5_hcc,High cloud cover,15,25,-0.002259776306452414
+era5_hcc,High cloud cover,16,31,-0.30048049865135895
+era5_hcc,High cloud cover,17,28,-0.09709106308281241
+era5_hcc,High cloud cover,18,30,-0.054003750745287495
+era5_hcc,High cloud cover,19,28,-0.3240593281178706
+era5_hcc,High cloud cover,20,25,0.04697509663840226
+era5_hcc,High cloud cover,21,28,0.5369828344454385
+era5_hcc,High cloud cover,22,25,-0.14353587483872615
+era5_hcc,High cloud cover,23,26,-0.23593393206942995
+era5_hcc,High cloud cover,24,28,0.5179093462756962
+era5_cloud_layer_sum,Cloud layer sum,0,59,1.0
+era5_cloud_layer_sum,Cloud layer sum,1,44,-0.04254897117808039
+era5_cloud_layer_sum,Cloud layer sum,2,41,0.009750398736075283
+era5_cloud_layer_sum,Cloud layer sum,3,40,0.15066100637878693
+era5_cloud_layer_sum,Cloud layer sum,4,36,0.040264955422163684
+era5_cloud_layer_sum,Cloud layer sum,5,39,0.12020800951321649
+era5_cloud_layer_sum,Cloud layer sum,6,36,-0.3222722057083672
+era5_cloud_layer_sum,Cloud layer sum,7,33,-0.220057289395188
+era5_cloud_layer_sum,Cloud layer sum,8,37,-0.20891853558569426
+era5_cloud_layer_sum,Cloud layer sum,9,30,-0.21780253440627606
+era5_cloud_layer_sum,Cloud layer sum,10,30,0.1684607611856327
+era5_cloud_layer_sum,Cloud layer sum,11,30,0.19794269195134126
+era5_cloud_layer_sum,Cloud layer sum,12,27,-0.14809970530936978
+era5_cloud_layer_sum,Cloud layer sum,13,29,0.16521725356842581
+era5_cloud_layer_sum,Cloud layer sum,14,25,0.4075945043575511
+era5_cloud_layer_sum,Cloud layer sum,15,25,-0.1562645249004523
+era5_cloud_layer_sum,Cloud layer sum,16,31,-0.119790112460106
+era5_cloud_layer_sum,Cloud layer sum,17,28,0.19072061585138023
+era5_cloud_layer_sum,Cloud layer sum,18,30,-0.4453702922443886
+era5_cloud_layer_sum,Cloud layer sum,19,28,0.09929091652653142
+era5_cloud_layer_sum,Cloud layer sum,20,25,-0.2433744537385433
+era5_cloud_layer_sum,Cloud layer sum,21,28,-0.13028622551495087
+era5_cloud_layer_sum,Cloud layer sum,22,25,-0.05090708781179584
+era5_cloud_layer_sum,Cloud layer sum,23,26,-0.10006834790793524
+era5_cloud_layer_sum,Cloud layer sum,24,28,0.337423708064822
+era5_t2m_c,2 m temperature (C),0,59,1.0
+era5_t2m_c,2 m temperature (C),1,44,-0.26252592014446563
+era5_t2m_c,2 m temperature (C),2,41,-0.2319962093871054
+era5_t2m_c,2 m temperature (C),3,40,0.48889665763818196
+era5_t2m_c,2 m temperature (C),4,36,-0.05448927778086477
+era5_t2m_c,2 m temperature (C),5,39,0.6486146416012587
+era5_t2m_c,2 m temperature (C),6,36,-0.4143955531062525
+era5_t2m_c,2 m temperature (C),7,33,-0.3694883621923768
+era5_t2m_c,2 m temperature (C),8,37,0.7259999273296566
+era5_t2m_c,2 m temperature (C),9,30,-0.1624417593225566
+era5_t2m_c,2 m temperature (C),10,30,-0.06928308237975629
+era5_t2m_c,2 m temperature (C),11,30,0.00015914660448194067
+era5_t2m_c,2 m temperature (C),12,27,-0.08209240331455671
+era5_t2m_c,2 m temperature (C),13,29,0.7396640102659784
+era5_t2m_c,2 m temperature (C),14,25,-0.44309749050356684
+era5_t2m_c,2 m temperature (C),15,25,-0.320940063375066
+era5_t2m_c,2 m temperature (C),16,31,0.6570847430376535
+era5_t2m_c,2 m temperature (C),17,28,-0.19440347447970624
+era5_t2m_c,2 m temperature (C),18,30,-0.2278704989878403
+era5_t2m_c,2 m temperature (C),19,28,0.1056797600999255
+era5_t2m_c,2 m temperature (C),20,25,-0.18285056287648832
+era5_t2m_c,2 m temperature (C),21,28,0.8042829928444236
+era5_t2m_c,2 m temperature (C),22,25,-0.26431361572773543
+era5_t2m_c,2 m temperature (C),23,26,-0.45165063726295474
+era5_t2m_c,2 m temperature (C),24,28,0.8182189709131761
+era5_tcwv,Total column water vapour,0,59,1.0
+era5_tcwv,Total column water vapour,1,44,-0.2552168956317536
+era5_tcwv,Total column water vapour,2,41,-0.149633922613471
+era5_tcwv,Total column water vapour,3,40,0.4229930750185265
+era5_tcwv,Total column water vapour,4,36,-0.04278728905729929
+era5_tcwv,Total column water vapour,5,39,0.6726644782705784
+era5_tcwv,Total column water vapour,6,36,-0.37412968316177814
+era5_tcwv,Total column water vapour,7,33,-0.4198387602517947
+era5_tcwv,Total column water vapour,8,37,0.6247103907194118
+era5_tcwv,Total column water vapour,9,30,-0.2300285595108377
+era5_tcwv,Total column water vapour,10,30,-0.05946508983885789
+era5_tcwv,Total column water vapour,11,30,0.051522137313903205
+era5_tcwv,Total column water vapour,12,27,-0.18670901043316243
+era5_tcwv,Total column water vapour,13,29,0.7386307045924291
+era5_tcwv,Total column water vapour,14,25,-0.4777231000224656
+era5_tcwv,Total column water vapour,15,25,-0.27365892449712353
+era5_tcwv,Total column water vapour,16,31,0.655229480594696
+era5_tcwv,Total column water vapour,17,28,-0.20712079975382777
+era5_tcwv,Total column water vapour,18,30,-0.15579996188427467
+era5_tcwv,Total column water vapour,19,28,0.018401828798592992
+era5_tcwv,Total column water vapour,20,25,-0.20224484332295678
+era5_tcwv,Total column water vapour,21,28,0.7667847113331645
+era5_tcwv,Total column water vapour,22,25,-0.43962065578847775
+era5_tcwv,Total column water vapour,23,26,-0.3688348908513015
+era5_tcwv,Total column water vapour,24,28,0.7377739371892326
+era5_sp,Surface pressure,0,59,1.0
+era5_sp,Surface pressure,1,44,0.14639217035785138
+era5_sp,Surface pressure,2,41,-0.06007452394196588
+era5_sp,Surface pressure,3,40,-0.11602198860770693
+era5_sp,Surface pressure,4,36,-0.06514419560638181
+era5_sp,Surface pressure,5,39,0.04033752710351484
+era5_sp,Surface pressure,6,36,0.08601495713817002
+era5_sp,Surface pressure,7,33,-0.14057332178608295
+era5_sp,Surface pressure,8,37,-0.264229194613704
+era5_sp,Surface pressure,9,30,-0.11117248950778821
+era5_sp,Surface pressure,10,30,-0.18299733201937898
+era5_sp,Surface pressure,11,30,0.1054714082674907
+era5_sp,Surface pressure,12,27,-0.19088891369661456
+era5_sp,Surface pressure,13,29,0.08838186278797501
+era5_sp,Surface pressure,14,25,0.23404191160511162
+era5_sp,Surface pressure,15,25,-0.06651051097891116
+era5_sp,Surface pressure,16,31,-0.4596601683941033
+era5_sp,Surface pressure,17,28,-0.26723480104262703
+era5_sp,Surface pressure,18,30,-0.10871527439613089
+era5_sp,Surface pressure,19,28,0.1314020580695409
+era5_sp,Surface pressure,20,25,0.45454743161913713
+era5_sp,Surface pressure,21,28,-0.25127035357269095
+era5_sp,Surface pressure,22,25,-0.36934315423328207
+era5_sp,Surface pressure,23,26,0.3093473255335114
+era5_sp,Surface pressure,24,28,0.5817319462180021
+era5_msl,Mean sea-level pressure,0,59,1.0
+era5_msl,Mean sea-level pressure,1,44,-0.013781991342779638
+era5_msl,Mean sea-level pressure,2,41,0.20109125199755873
+era5_msl,Mean sea-level pressure,3,40,-0.05967312051063944
+era5_msl,Mean sea-level pressure,4,36,-0.13316065099512744
+era5_msl,Mean sea-level pressure,5,39,-0.15143625741452832
+era5_msl,Mean sea-level pressure,6,36,0.0692875347948676
+era5_msl,Mean sea-level pressure,7,33,-0.19313952984234675
+era5_msl,Mean sea-level pressure,8,37,-0.10232104449328701
+era5_msl,Mean sea-level pressure,9,30,0.08846673246812721
+era5_msl,Mean sea-level pressure,10,30,0.011920706606848288
+era5_msl,Mean sea-level pressure,11,30,0.07288674239243102
+era5_msl,Mean sea-level pressure,12,27,0.26480221487101924
+era5_msl,Mean sea-level pressure,13,29,0.08610308812657254
+era5_msl,Mean sea-level pressure,14,25,-0.1287077668994261
+era5_msl,Mean sea-level pressure,15,25,0.030734296610211164
+era5_msl,Mean sea-level pressure,16,31,-0.5562290961931502
+era5_msl,Mean sea-level pressure,17,28,0.03522394030591228
+era5_msl,Mean sea-level pressure,18,30,-0.14805895631697097
+era5_msl,Mean sea-level pressure,19,28,0.012422713867590167
+era5_msl,Mean sea-level pressure,20,25,-0.13304561949928348
+era5_msl,Mean sea-level pressure,21,28,-0.24445289784588176
+era5_msl,Mean sea-level pressure,22,25,0.1267048032332374
+era5_msl,Mean sea-level pressure,23,26,0.1512803895019407
+era5_msl,Mean sea-level pressure,24,28,0.5566631989070794

@@ -1,0 +1,2 @@
+total_era5_rows,era5_row_groups,era5_hours,median_era5_rows_per_hour,clara_matched_grid_hour_cells,clara_observations,clara_matched_hours,clara_match_rate_over_era5_rows,clara_radiance_min,clara_radiance_mean,clara_radiance_median,clara_radiance_max,matched_longitude_min,matched_longitude_max,matched_latitude_min,matched_latitude_max
+83825280,132,132,635040.0,1027,1030,59,1.2251673958023165e-05,-37.241519927978516,124.21983337402344,141.12576293945312,381.5622253417969,-179.75,179.75,-17.75,81.75

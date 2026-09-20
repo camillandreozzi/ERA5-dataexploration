@@ -1,4 +1,11 @@
+import sys
 from pathlib import Path
+for _p in Path(__file__).resolve().parents:
+    if (_p / "paths.py").exists():
+        sys.path.insert(0, str(_p))
+        break
+from paths import subset_data_path, subset_results_path
+
 import os
 import tempfile
 
@@ -18,28 +25,35 @@ import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.impute import SimpleImputer
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.pipeline import Pipeline
+
+
+try:
+    from covariate_preprocessing import (
+        LOCAL_TIME_COLUMN, LOG_RADIANCE_COLUMN, add_local_time,
+        add_log_radiance, make_covariate_preprocessor,
+    )
+    from fold_config import MIN_TEST_ROWS, MIN_TRAIN_ROWS, N_SPACE_FOLDS, N_TIME_FOLDS
+except ModuleNotFoundError:
+    from modelling.covariate_preprocessing import (
+        LOCAL_TIME_COLUMN, LOG_RADIANCE_COLUMN, add_local_time,
+        add_log_radiance, make_covariate_preprocessor,
+    )
+    from modelling.fold_config import MIN_TEST_ROWS, MIN_TRAIN_ROWS, N_SPACE_FOLDS, N_TIME_FOLDS
 
 
 RANDOM_SEED = 14122
 
 VALIDATION_STRATEGY = "space_time_blocked"
-N_SPACE_FOLDS = 4
-N_TIME_FOLDS = 4
-MIN_TRAIN_ROWS = 50
-MIN_TEST_ROWS = 5
 
 N_ESTIMATORS = 500
 MIN_SAMPLES_LEAF = 5
 MAX_FEATURES = "sqrt"
 
-DATA_PATH = Path("data/CLARA_ERA5_merged.parquet")
-if not DATA_PATH.exists():
-    DATA_PATH = Path("../data/CLARA_ERA5_merged.parquet")
+DATA_PATH = subset_data_path("CLARA_ERA5_merged.parquet")
 
-OUT_DIR = Path("results/modelling/rf")
+OUT_DIR = subset_results_path("modelling/rf")
 
 Y_COLUMN = "clara_radiance_hourly_mean"
 COUNT_COLUMN = "clara_n_datapoints"
@@ -101,6 +115,7 @@ DERIVED_DEPENDENCIES = {
 }
 
 TIME_FEATURES = [
+    LOCAL_TIME_COLUMN,
     TIME_COLUMN,
 ]
 
@@ -130,6 +145,7 @@ def add_derived_covariates(frame):
 
 
 def add_time_space_features(frame):
+    frame = add_local_time(frame)
     frame[TIME_COLUMN] = pd.to_datetime(frame[TIME_COLUMN])
 
     frame["time_hours_since_start"] = (
@@ -151,7 +167,7 @@ def needed_columns(schema_names):
     available = set(schema_names)
     needed = {Y_COLUMN, COUNT_COLUMN, TIME_COLUMN, LAT_COLUMN, LON_COLUMN}
 
-    for variable in PREFERRED_COVARIATES:
+    for variable in PREFERRED_COVARIATES + [LOCAL_TIME_COLUMN]:
         if variable in available:
             needed.add(variable)
         elif variable in DERIVED_DEPENDENCIES:
@@ -176,7 +192,8 @@ def load_model_data(data_path):
     frame = table.to_pandas().reset_index(drop=True)
     frame = add_derived_covariates(frame)
     frame = add_time_space_features(frame)
-    frame = frame.replace([np.inf, -np.inf], np.nan).dropna(subset=[Y_COLUMN]).copy()
+    frame = add_log_radiance(frame, Y_COLUMN)
+    frame = frame.replace([np.inf, -np.inf], np.nan)
 
     candidate_features = [
         column
@@ -187,7 +204,7 @@ def load_model_data(data_path):
     feature_columns = []
     for column in candidate_features:
         values = pd.to_numeric(frame[column], errors="coerce")
-        if values.notna().sum() >= 20 and values.nunique(dropna=True) > 1:
+        if column == LOCAL_TIME_COLUMN or (values.notna().sum() >= 20 and values.nunique(dropna=True) > 1):
             frame[column] = values
             feature_columns.append(column)
 
@@ -260,7 +277,7 @@ def feature_group(feature):
 def make_rf_model():
     return Pipeline(
         [
-            ("imputer", SimpleImputer(strategy="median")),
+            ("preprocessor", make_covariate_preprocessor()),
             (
                 "random_forest",
                 RandomForestRegressor(
@@ -343,7 +360,7 @@ def fold_importance_frame(model, feature_columns, fold_id, space_fold, time_fold
             TIME_FOLD_COLUMN: time_fold,
             "n_train": n_train,
             "n_test": n_test,
-            "feature": feature_columns,
+            "feature": model.named_steps["preprocessor"].get_feature_names_out(),
             IMPORTANCE_COLUMN: model.named_steps["random_forest"].feature_importances_,
         }
     )
@@ -363,11 +380,16 @@ def run_space_time_benchmark(frame, feature_columns):
     fitted_fold_id = 0
     for space_fold, time_fold, train_idx, test_idx in space_time_splits(frame):
         if len(train_idx) < MIN_TRAIN_ROWS or len(test_idx) < MIN_TEST_ROWS:
+            print(
+                f"Skipped space fold {space_fold}, time fold {time_fold}: "
+                f"n_train={len(train_idx):,} (min {MIN_TRAIN_ROWS}), "
+                f"n_test={len(test_idx):,} (min {MIN_TEST_ROWS})"
+            )
             continue
 
         X_train = X.loc[train_idx]
         X_test = X.loc[test_idx]
-        y_train = y.loc[train_idx]
+        y_train = frame.loc[train_idx, LOG_RADIANCE_COLUMN]
         y_test = y.loc[test_idx]
 
         if y_train.nunique(dropna=True) < 2:
@@ -377,8 +399,8 @@ def run_space_time_benchmark(frame, feature_columns):
         model = make_rf_model()
         model.fit(X_train, y_train)
 
-        prediction = model.predict(X_test)
-        baseline_prediction = float(y_train.mean())
+        prediction = np.exp(model.predict(X_test))
+        baseline_prediction = float(np.exp(y_train.mean()))
 
         prediction_frames.append(
             fold_prediction_frame(
@@ -466,6 +488,8 @@ def overall_metrics(predictions):
         [
             {
                 "validation_strategy": VALIDATION_STRATEGY,
+                "target": LOG_RADIANCE_COLUMN,
+                "prediction_scale": "radiance",
                 "n_predictions": len(predictions),
                 "n_estimators": N_ESTIMATORS,
                 "min_samples_leaf": MIN_SAMPLES_LEAF,

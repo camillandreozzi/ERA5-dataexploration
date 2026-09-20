@@ -1,4 +1,11 @@
+import sys
 from pathlib import Path
+for _p in Path(__file__).resolve().parents:
+    if (_p / "paths.py").exists():
+        sys.path.insert(0, str(_p))
+        break
+from paths import SUBSET, subset_data_path, subset_results_path, show_or_save
+
 import warnings
 
 import cfgrib
@@ -9,11 +16,14 @@ import numpy as np
 import pandas as pd
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_ROOT / "data"
-CLARA_PATH = DATA_DIR / "CLARA_matched.pkl"
-ERA5_PATH = DATA_DIR / "ERA5_matched.grib"
-OUTPUT_PATH = PROJECT_ROOT / "results" / "exploratory" /"clara_era5_overlap.png"
+CLARA_PATH = subset_data_path("CLARA_matched.pkl")
+# temporal_subset is one GRIB; spatial_subset is one GRIB per month.
+ERA5_PATHS = (
+    [subset_data_path("ERA5_matched.grib")]
+    if SUBSET == "temporal_subset"
+    else sorted(subset_data_path().glob("ERA5_matched_2020*.grib"))
+)
+OUTPUT_PATH = subset_results_path("exploratory/clara_era5_overlap.png")
 
 
 def load_clara_matched(path):
@@ -22,10 +32,16 @@ def load_clara_matched(path):
     return clara_matched
 
 
-def load_era5_matched(path):
+def load_era5_matched(paths):
+    """Open every GRIB lazily; only coordinates are read below."""
+    if not paths:
+        raise FileNotFoundError(f"No ERA5 GRIBs found in {subset_data_path()}")
+    datasets = []
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", FutureWarning)
-        return cfgrib.open_datasets(path, backend_kwargs={"indexpath": ""})
+        for path in paths:
+            datasets.extend(cfgrib.open_datasets(path))
+    return datasets
 
 
 def get_era5_times(era5_matched):
@@ -245,7 +261,7 @@ def plot_overlap(clara_matched, era5_matched):
 
 
 clara_matched = load_clara_matched(CLARA_PATH)
-era5_matched = load_era5_matched(ERA5_PATH)
+era5_matched = load_era5_matched(ERA5_PATHS)
 
 fig, summary = plot_overlap(clara_matched, era5_matched)
 
@@ -288,4 +304,4 @@ print(f"Saved overlap figure to {OUTPUT_PATH}")
 if plt.get_backend().lower() == "agg":
     plt.close(fig)
 else:
-    plt.show()
+    show_or_save(plt, subset_results_path("exploratory/data_overlap_01.png"))

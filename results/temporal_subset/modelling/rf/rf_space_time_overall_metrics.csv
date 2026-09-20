@@ -1,0 +1,2 @@
+validation_strategy,n_predictions,n_estimators,min_samples_leaf,max_features,rmse,mae,r2,baseline_rmse,baseline_mae,baseline_r2
+space_time_blocked,1027,500,5,sqrt,74.97400996664308,56.69956581795708,0.048034743001653224,77.1445786624559,61.07805787975268,-0.007883747853933087

@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+for _p in Path(__file__).resolve().parents:
+    if (_p / "paths.py").exists():
+        sys.path.insert(0, str(_p))
+        break
+from paths import subset_results_path
+
 import argparse
 from dataclasses import dataclass
 from pathlib import Path
@@ -23,9 +31,13 @@ except ModuleNotFoundError:
     from modelling import benchmark_rf as rf_benchmark
 
 
-OUT_DIR = Path("results/modelling/rf_stkriging")
+OUT_DIR = subset_results_path("modelling/rf_stkriging")
 OUTPUT_PREFIX = "rf_stkriging_space_time"
 GRID_OUTPUT_DIR = OUT_DIR / "grid_predictions"
+
+# Ocean-only covariates would exclude land cells from full-grid prediction.
+EXCLUDED_COVARIATES = frozenset({"era5_sst", "era5_siconc"})
+RF_VARIANCE_METHOD = "tree_spread_ddof1_proxy"
 
 VARIOGRAM_MODEL = "spherical"
 VARIOGRAM_NLAGS = 6
@@ -344,6 +356,59 @@ def predict_residuals(
     return residual_prediction, residual_variance, n_closest
 
 
+def predict_rf_log_moments(model, features):
+    """Mean and sample tree dispersion, NOT calibrated variance of the forest mean.
+
+    Transform using the fitted training preprocessor and stream tree predictions
+    with Welford's algorithm to avoid a trees-by-grid-rows allocation.
+    """
+    transformed = np.ascontiguousarray(
+        model.named_steps["preprocessor"].transform(features), dtype=np.float32
+    )
+    trees = model.named_steps["random_forest"].estimators_
+    mean = np.zeros(len(features), dtype=float)
+    squared_deviations = np.zeros(len(features), dtype=float)
+    for count, tree in enumerate(trees, start=1):
+        prediction = tree.predict(transformed, check_input=False)
+        delta = prediction - mean
+        mean += delta / count
+        squared_deviations += delta * (prediction - mean)
+    variance = squared_deviations / (len(trees) - 1) if len(trees) > 1 else np.full(len(features), np.nan)
+    return mean, variance
+
+
+def radiance_variance_components(log_prediction, rf_log_variance, kriging_log_variance):
+    """Approximate independent Gaussian log errors; split Var(Y) conditional on RF.
+
+    RF contribution is Var(E[Y | RF]); kriging contribution is E[Var(Y | RF)].
+    Their sum is exp(2*mu + v_total) * expm1(v_total). RF and residual errors
+    share training data, so independence is an approximation, not a guarantee.
+    NaN variances remain unknown; only tiny negative roundoff is clipped.
+    """
+    mu, rf_var, kriging_var = np.broadcast_arrays(
+        np.asarray(log_prediction, dtype=float),
+        np.asarray(rf_log_variance, dtype=float),
+        np.asarray(kriging_log_variance, dtype=float),
+    )
+    if np.any(rf_var < -1e-10) or np.any(kriging_var < -1e-10):
+        raise ValueError("Cannot transform a materially negative prediction variance.")
+    rf_var = np.maximum(rf_var, 0)
+    kriging_var = np.maximum(kriging_var, 0)
+    total_log_var = rf_var + kriging_var
+    with np.errstate(over="raise", invalid="ignore"):
+        scale = np.exp(2 * mu + total_log_var)
+        rf_contribution = scale * np.expm1(rf_var)
+        kriging_contribution = scale * np.exp(rf_var) * np.expm1(kriging_var)
+    return {
+        "rf_log_variance": rf_var,
+        "kriging_log_variance": kriging_var,
+        "predicted_log_variance": total_log_var,
+        "rf_radiance_variance": rf_contribution,
+        "kriging_radiance_variance": kriging_contribution,
+        "predicted_radiance_variance": rf_contribution + kriging_contribution,
+    }
+
+
 def fold_prediction_frame(
     frame,
     test_idx,
@@ -351,9 +416,9 @@ def fold_prediction_frame(
     prediction,
     rf_mean_prediction,
     kriged_residual_prediction,
-    kriging_variance,
     baseline_prediction,
     fold_id,
+    variance_components,
 ):
     prediction_frame = frame.loc[
         test_idx,
@@ -372,8 +437,9 @@ def fold_prediction_frame(
     prediction_frame["observed"] = y_test.to_numpy(dtype=float)
     prediction_frame["predicted"] = prediction
     prediction_frame["rf_mean_predicted"] = rf_mean_prediction
-    prediction_frame["kriged_residual_predicted"] = kriged_residual_prediction
-    prediction_frame["kriging_variance"] = kriging_variance
+    prediction_frame["kriged_residual_factor"] = np.exp(kriged_residual_prediction)
+    for column, values in variance_components.items():
+        prediction_frame[column] = values
     prediction_frame["residual"] = prediction_frame["observed"] - prediction_frame["predicted"]
     prediction_frame["abs_error"] = prediction_frame["residual"].abs()
     prediction_frame["squared_error"] = prediction_frame["residual"] ** 2
@@ -396,17 +462,22 @@ def run_space_time_benchmark(frame, feature_columns):
     metrics_records = []
 
     feature_data = frame[feature_columns]
-    target = frame[rf_benchmark.Y_COLUMN].astype(float)
+    target = frame[rf_benchmark.LOG_RADIANCE_COLUMN].astype(float)
 
     fitted_fold_id = 0
     for space_fold, time_fold, train_idx, test_idx in rf_benchmark.space_time_splits(frame):
         if len(train_idx) < rf_benchmark.MIN_TRAIN_ROWS or len(test_idx) < rf_benchmark.MIN_TEST_ROWS:
+            print(
+                f"Skipped space fold {space_fold}, time fold {time_fold}: "
+                f"n_train={len(train_idx):,} (min {rf_benchmark.MIN_TRAIN_ROWS}), "
+                f"n_test={len(test_idx):,} (min {rf_benchmark.MIN_TEST_ROWS})"
+            )
             continue
 
         x_train = feature_data.loc[train_idx]
         x_test = feature_data.loc[test_idx]
         y_train = target.loc[train_idx]
-        y_test = target.loc[test_idx]
+        y_test = frame.loc[test_idx, rf_benchmark.Y_COLUMN].astype(float)
 
         if y_train.nunique(dropna=True) < 2:
             continue
@@ -416,7 +487,7 @@ def run_space_time_benchmark(frame, feature_columns):
         model.fit(x_train, y_train)
 
         rf_train_prediction = model.predict(x_train)
-        rf_test_prediction = model.predict(x_test)
+        rf_test_prediction, rf_log_variance = predict_rf_log_moments(model, x_test)
         train_residuals = y_train.to_numpy(dtype=float) - rf_train_prediction
 
         coordinate_scaler = SpaceTimeCoordinateScaler.fit(frame.loc[train_idx])
@@ -436,8 +507,13 @@ def run_space_time_benchmark(frame, feature_columns):
             z_test=st_z_test,
             n_train=kriging_info["kriging_n_train"],
         )
-        prediction = rf_test_prediction + kriged_residual_prediction
-        baseline_prediction = float(y_train.mean())
+        combined_log_prediction = rf_test_prediction + kriged_residual_prediction
+        variance_components = radiance_variance_components(
+            combined_log_prediction, rf_log_variance, kriging_variance
+        )
+        prediction = np.exp(combined_log_prediction)
+        rf_test_prediction = np.exp(rf_test_prediction)
+        baseline_prediction = float(np.exp(y_train.mean()))
 
         prediction_frames.append(
             fold_prediction_frame(
@@ -447,9 +523,9 @@ def run_space_time_benchmark(frame, feature_columns):
                 prediction=prediction,
                 rf_mean_prediction=rf_test_prediction,
                 kriged_residual_prediction=kriged_residual_prediction,
-                kriging_variance=kriging_variance,
                 baseline_prediction=baseline_prediction,
                 fold_id=fold_id,
+                variance_components=variance_components,
             )
         )
         importance_frames.append(
@@ -504,7 +580,12 @@ def run_space_time_benchmark(frame, feature_columns):
                 "kriging_time_axis_scale_km": coordinate_scaler.spatial_scale_km
                 * TIME_AXIS_SCALE_MULTIPLIER,
                 "wrap_longitude_for_kriging": WRAP_LONGITUDE_FOR_KRIGING,
-                "mean_kriging_variance": float(np.nanmean(kriging_variance)),
+                "mean_kriging_log_variance": float(np.nanmean(kriging_variance)),
+                "rf_variance_method": RF_VARIANCE_METHOD,
+                "mean_rf_log_variance": float(np.nanmean(rf_log_variance)),
+                "mean_predicted_radiance_variance": float(np.nanmean(
+                    variance_components["predicted_radiance_variance"]
+                )),
             }
         )
 
@@ -542,6 +623,10 @@ def overall_metrics(predictions):
         [
             {
                 "validation_strategy": rf_benchmark.VALIDATION_STRATEGY,
+                "target": rf_benchmark.LOG_RADIANCE_COLUMN,
+                "prediction_scale": "radiance",
+                "rf_variance_method": RF_VARIANCE_METHOD,
+                "variance_assumption": "independent_gaussian_log_errors",
                 "n_predictions": len(predictions),
                 "n_estimators": rf_benchmark.N_ESTIMATORS,
                 "min_samples_leaf": rf_benchmark.MIN_SAMPLES_LEAF,
@@ -621,6 +706,8 @@ def prediction_columns_for_features(data_path, feature_columns):
     names = schema_names(data_path)
     available = set(names)
     needed = {rf_benchmark.TIME_COLUMN, rf_benchmark.LAT_COLUMN, rf_benchmark.LON_COLUMN}
+    if rf_benchmark.LOCAL_TIME_COLUMN in available:
+        needed.add(rf_benchmark.LOCAL_TIME_COLUMN)
 
     for feature in feature_columns:
         if feature in available:
@@ -689,7 +776,7 @@ def prepare_grid_prediction_frame(frame, feature_columns):
 
 def fit_final_rf_residual_kriging(frame, feature_columns):
     feature_data = frame[feature_columns]
-    target = frame[rf_benchmark.Y_COLUMN].astype(float)
+    target = frame[rf_benchmark.LOG_RADIANCE_COLUMN].astype(float)
 
     model = rf_benchmark.make_rf_model()
     model.fit(feature_data, target)
@@ -739,7 +826,7 @@ def predict_grid_frame(
     if frame.empty:
         return pd.DataFrame()
 
-    rf_mean_prediction = fitted.model.predict(frame[feature_columns])
+    rf_mean_prediction, rf_log_variance = predict_rf_log_moments(fitted.model, frame[feature_columns])
     st_x, st_y, st_z = fitted.coordinate_scaler.transform(frame)
     nearest_observation_distance, _ = fitted.observation_tree.query(
         np.column_stack([st_x, st_y, st_z]),
@@ -754,7 +841,12 @@ def predict_grid_frame(
         backend=kriging_backend,
         n_closest_points=n_closest_points,
     )
-    prediction = rf_mean_prediction + kriged_residual_prediction
+    # Both components are fitted on log radiance; exponentiate their sum.
+    combined_log_prediction = rf_mean_prediction + kriged_residual_prediction
+    prediction = np.exp(combined_log_prediction)
+    variance_components = radiance_variance_components(
+        combined_log_prediction, rf_log_variance, kriging_variance
+    )
 
     return pd.DataFrame(
         {
@@ -762,10 +854,9 @@ def predict_grid_frame(
             rf_benchmark.LAT_COLUMN: frame[rf_benchmark.LAT_COLUMN].to_numpy(dtype=float),
             rf_benchmark.LON_COLUMN: frame[rf_benchmark.LON_COLUMN].to_numpy(dtype=float),
             "predicted_radiance": prediction,
-            "predicted_radiance_variance": kriging_variance,
-            "rf_mean_predicted_radiance": rf_mean_prediction,
-            "kriged_residual_radiance": kriged_residual_prediction,
-            "kriging_variance": kriging_variance,
+            "rf_mean_predicted_radiance": np.exp(rf_mean_prediction),
+            "kriged_residual_factor": np.exp(kriged_residual_prediction),
+            **variance_components,
             "nearest_observation_distance_km": nearest_observation_distance,
         }
     )
@@ -862,6 +953,9 @@ def write_grid_predictions(
                 "n_predictions": n_written,
                 "batch_size": batch_size,
                 "output_path": str(output_path),
+                "rf_variance_method": RF_VARIANCE_METHOD,
+                "variance_assumption": "independent_gaussian_log_errors",
+                "variance_scale": "radiance_squared",
                 "variogram_model": VARIOGRAM_MODEL,
                 "variogram_nlags": VARIOGRAM_NLAGS,
                 "variogram_weight": VARIOGRAM_WEIGHT,
@@ -896,79 +990,44 @@ def write_grid_predictions(
 
 
 def plot_grid_predictions(prediction_path, output_path, training_frame=None):
+    panels = [
+        ("predicted_radiance", "Predicted radiance"),
+        ("predicted_radiance_variance", "Total approximate variance: RF + kriging"),
+        ("rf_radiance_variance", "RF contribution to approximate variance"),
+        ("kriging_radiance_variance", "Kriging contribution to approximate variance"),
+    ]
     predictions = pd.read_parquet(
         prediction_path,
-        columns=[
-            rf_benchmark.TIME_COLUMN,
-            rf_benchmark.LAT_COLUMN,
-            rf_benchmark.LON_COLUMN,
-            "predicted_radiance",
-            "predicted_radiance_variance",
-        ],
+        columns=[rf_benchmark.TIME_COLUMN, rf_benchmark.LAT_COLUMN,
+                 rf_benchmark.LON_COLUMN, *[column for column, _ in panels]],
     )
-
     if predictions.empty:
         return
 
-    prediction_grid = (
-        predictions.pivot_table(
-            index=rf_benchmark.LAT_COLUMN,
-            columns=rf_benchmark.LON_COLUMN,
-            values="predicted_radiance",
-            aggfunc="mean",
+    fig, axes = rf_benchmark.plt.subplots(2, 2, figsize=(20, 10), constrained_layout=True)
+    variance_max = predictions["predicted_radiance_variance"].max()
+    for index, (ax, (column, title)) in enumerate(zip(axes.ravel(), panels)):
+        grid = predictions.pivot_table(
+            index=rf_benchmark.LAT_COLUMN, columns=rf_benchmark.LON_COLUMN,
+            values=column, aggfunc="mean", dropna=False,
+        ).sort_index().sort_index(axis=1)
+        extent = [float(grid.columns.min()), float(grid.columns.max()),
+                  float(grid.index.min()), float(grid.index.max())]
+        for lo, hi in ((0, 1), (2, 3)):
+            if extent[lo] == extent[hi]:
+                extent[lo] -= 0.5
+                extent[hi] += 0.5
+        cmap = rf_benchmark.plt.get_cmap("viridis" if index == 0 else "magma").copy()
+        cmap.set_bad("#d1d5db")
+        image = ax.imshow(
+            grid.to_numpy(), origin="lower", extent=extent, aspect="auto", cmap=cmap,
+            vmin=None if index == 0 else 0,
+            vmax=None if index == 0 or not np.isfinite(variance_max) else variance_max,
         )
-        .sort_index()
-        .sort_index(axis=1)
-    )
-    variance_grid = (
-        predictions.pivot_table(
-            index=rf_benchmark.LAT_COLUMN,
-            columns=rf_benchmark.LON_COLUMN,
-            values="predicted_radiance_variance",
-            aggfunc="mean",
-        )
-        .sort_index()
-        .sort_index(axis=1)
-    )
-
-    extent = [
-        float(prediction_grid.columns.min()),
-        float(prediction_grid.columns.max()),
-        float(prediction_grid.index.min()),
-        float(prediction_grid.index.max()),
-    ]
-    if extent[0] == extent[1]:
-        extent[0] -= 0.5
-        extent[1] += 0.5
-    if extent[2] == extent[3]:
-        extent[2] -= 0.5
-        extent[3] += 0.5
-
-    fig, axes = rf_benchmark.plt.subplots(2, 1, figsize=(20, 10), constrained_layout=True)
-
-    image = axes[0].imshow(
-        prediction_grid.to_numpy(),
-        origin="lower",
-        extent=extent,
-        aspect="auto",
-        cmap="viridis",
-    )
-    fig.colorbar(image, ax=axes[0], label="Predicted radiance")
-    axes[0].set_title("Grid predicted radiance")
-    axes[0].set_xlabel("Longitude")
-    axes[0].set_ylabel("Latitude")
-
-    image = axes[1].imshow(
-        variance_grid.to_numpy(),
-        origin="lower",
-        extent=extent,
-        aspect="auto",
-        cmap="magma",
-    )
-    fig.colorbar(image, ax=axes[1], label="Residual kriging variance")
-    axes[1].set_title("Grid residual kriging variance")
-    axes[1].set_xlabel("Longitude")
-    axes[1].set_ylabel("Latitude")
+        fig.colorbar(image, ax=ax, label="Radiance" if index == 0 else "Variance (radiance²)")
+        ax.set_title(title)
+        ax.set_xlabel("Longitude")
+        ax.set_ylabel("Latitude")
 
     if training_frame is not None:
         prediction_hour = pd.to_datetime(predictions[rf_benchmark.TIME_COLUMN]).iloc[0]
@@ -976,17 +1035,11 @@ def plot_grid_predictions(prediction_path, output_path, training_frame=None):
             pd.to_datetime(training_frame[rf_benchmark.TIME_COLUMN]) == prediction_hour
         ]
         if not observed_at_hour.empty:
-            for ax in axes:
-                ax.scatter(
-                    observed_at_hour[rf_benchmark.LON_COLUMN],
-                    observed_at_hour[rf_benchmark.LAT_COLUMN],
-                    s=12,
-                    c="white",
-                    edgecolor="black",
-                    linewidth=0.4,
-                    alpha=0.9,
-                )
-
+            for ax in axes.ravel():
+                ax.scatter(observed_at_hour[rf_benchmark.LON_COLUMN],
+                           observed_at_hour[rf_benchmark.LAT_COLUMN], s=12, c="white",
+                           edgecolor="black", linewidth=0.4, alpha=0.9)
+    fig.suptitle("RF tree-spread proxy; independent Gaussian log errors; grey = unknown variance")
     fig.savefig(output_path, dpi=200)
     rf_benchmark.plt.close(fig)
 
@@ -1165,11 +1218,17 @@ def parse_args():
     return args
 
 
+def load_model_data(data_path):
+    frame, feature_columns = rf_benchmark.load_model_data(data_path)
+    feature_columns = [name for name in feature_columns if name not in EXCLUDED_COVARIATES]
+    return frame.drop(columns=list(EXCLUDED_COVARIATES), errors="ignore"), feature_columns
+
+
 def main():
     args = parse_args()
     require_pykrige()
 
-    frame, feature_columns = rf_benchmark.load_model_data(rf_benchmark.DATA_PATH)
+    frame, feature_columns = load_model_data(rf_benchmark.DATA_PATH)
 
     if args.mode in {"validate", "both"}:
         validation_frame = rf_benchmark.assign_space_time_folds(frame.copy())

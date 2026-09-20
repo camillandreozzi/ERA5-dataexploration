@@ -1,0 +1,2 @@
+trend_fit,degree,n_fit_points,origin,intercept,slope_per_year,coefficients_high_to_low_order,r_squared,residual_mean,residual_std
+daily,1,563,2020-01-01 01:11:00,154.11412204916823,-5.86582909375919,-5.865829094;154.114122,0.03980321943408893,0.3383034171808703,61.535358221109206

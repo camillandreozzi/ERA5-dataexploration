@@ -4,3 +4,6 @@ data/
 *.grib
 *.grib.idx
 *.idx
+.venv/
+logs/
+__pycache__/

@@ -1,0 +1,11 @@
+cdsapi
+cfgrib
+eccodes
+matplotlib
+numpy
+pandas
+pyarrow
+pykrige
+scikit-learn
+scipy
+xarray

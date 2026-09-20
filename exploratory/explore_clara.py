@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+for _p in Path(__file__).resolve().parents:
+    if (_p / "paths.py").exists():
+        sys.path.insert(0, str(_p))
+        break
+from paths import subset_data_path, subset_results_path
+
 from pathlib import Path
 import argparse
 import os
@@ -15,12 +23,10 @@ import numpy as np
 import pandas as pd
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_ROOT / "data"
-RESULTS_DIR = PROJECT_ROOT / "results" / "exploratory" / "clara"
+RESULTS_DIR = subset_results_path("exploratory/clara")
 
-DEFAULT_CLARA_PATH = DATA_DIR / "CLARA_matched.pkl"
-DEFAULT_HOURLY_GRID_PATH = DATA_DIR / "CLARA_hourly_by_grid.pkl"
+DEFAULT_CLARA_PATH = subset_data_path("CLARA_matched.pkl")
+DEFAULT_HOURLY_GRID_PATH = subset_data_path("CLARA_hourly_by_grid.pkl")
 
 TIME_COLUMN = "TimeJD"
 RADIANCE_COLUMN = "CLARA_radiance"

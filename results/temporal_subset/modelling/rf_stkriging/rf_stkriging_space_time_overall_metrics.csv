@@ -1,0 +1,2 @@
+validation_strategy,target,prediction_scale,n_predictions,n_estimators,min_samples_leaf,max_features,variogram_model,variogram_nlags,variogram_weight,kriging_backend,max_n_closest_points,time_axis_scale_multiplier,rmse,mae,r2,rf_mean_rmse,rf_mean_mae,rf_mean_r2,baseline_rmse,baseline_mae,baseline_r2
+space_time_blocked,log_radiance,radiance,876,500,5,sqrt,spherical,6,True,loop,64,1.0,72.44771297271791,54.17632787000492,-0.7162725004328601,68.68017973925382,50.70348788883283,-0.542409635312108,61.065771190827796,47.88761757206534,-0.21936177275299396

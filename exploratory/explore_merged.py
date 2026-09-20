@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+for _p in Path(__file__).resolve().parents:
+    if (_p / "paths.py").exists():
+        sys.path.insert(0, str(_p))
+        break
+from paths import subset_data_path, subset_results_path
+
 from collections import defaultdict
 from pathlib import Path
 import math
@@ -18,11 +26,9 @@ import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_ROOT / "data"
-RESULTS_DIR = PROJECT_ROOT / "results" / "exploratory" / "merged"
+RESULTS_DIR = subset_results_path("exploratory/merged")
 
-MERGED_PATH = DATA_DIR / "CLARA_ERA5_merged.parquet"
+MERGED_PATH = subset_data_path("CLARA_ERA5_merged.parquet")
 
 HOUR_COLUMN = "hour"
 LONGITUDE_COLUMN = "longitude"

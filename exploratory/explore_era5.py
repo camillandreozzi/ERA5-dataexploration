@@ -1,3 +1,11 @@
+import sys
+from pathlib import Path
+for _p in Path(__file__).resolve().parents:
+    if (_p / "paths.py").exists():
+        sys.path.insert(0, str(_p))
+        break
+from paths import subset_data_path, subset_results_path
+
 from pathlib import Path
 import argparse
 import math
@@ -13,15 +21,14 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pyarrow as pa
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_DIR = PROJECT_ROOT / "data"
-RESULTS_DIR = PROJECT_ROOT / "results" / "exploratory" / "era5"
+RESULTS_DIR = subset_results_path("exploratory/era5")
 
-MERGED_PATH = DATA_DIR / "CLARA_ERA5_merged.parquet"
+MERGED_PATH = subset_data_path("CLARA_ERA5_merged.parquet")
 
 BATCH_SIZE = 250_000
 SAMPLE_SIZE = 200_000
@@ -141,7 +148,7 @@ def available_covariates(schema_names):
 
 def scan_columns(schema_names, covariates):
     available = set(schema_names)
-    columns = set()
+    columns = {"hour", "latitude", "longitude"}
 
     for variable in covariates:
         if variable in available:
@@ -173,6 +180,77 @@ def add_derived_covariates(frame):
         frame["era5_cloud_layer_sum"] = frame["era5_lcc"] + frame["era5_mcc"] + frame["era5_hcc"]
 
     return frame
+
+
+class SpaceTimeMissingness:
+    """Exact per-cell and per-hour counts, independent of parquet batch boundaries."""
+
+    def __init__(self, variables):
+        self.variables = list(variables)
+        self.cells = pd.MultiIndex.from_arrays([[], []], names=["latitude", "longitude"])
+        self.hours = pd.DatetimeIndex([], name="hour")
+        self.spatial_counts = np.zeros((0, len(variables) + 1), dtype=np.int64)
+        self.temporal_counts = np.zeros((0, len(variables) + 1), dtype=np.int64)
+        self.limited_scan = False
+
+    def update(self, frame):
+        coordinates = frame[["latitude", "longitude"]].to_numpy(dtype=float)
+        hours = pd.DatetimeIndex(pd.to_datetime(frame["hour"]))
+        if not np.isfinite(coordinates).all() or hours.isna().any():
+            raise ValueError("Space/time missingness requires finite coordinates and valid hours.")
+        cells = pd.MultiIndex.from_frame(frame[["latitude", "longitude"]])
+        new_cells = cells[self.cells.get_indexer(cells) < 0].unique()
+        if len(new_cells):
+            self.cells = self.cells.append(new_cells)
+            self.spatial_counts = np.concatenate([
+                self.spatial_counts,
+                np.zeros((len(new_cells), len(self.variables) + 1), dtype=np.int64),
+            ])
+        new_hours = hours[self.hours.get_indexer(hours) < 0].unique()
+        if len(new_hours):
+            self.hours = self.hours.append(new_hours)
+            self.temporal_counts = np.concatenate([
+                self.temporal_counts,
+                np.zeros((len(new_hours), len(self.variables) + 1), dtype=np.int64),
+            ])
+        cell_positions = self.cells.get_indexer(cells)
+        hour_positions = self.hours.get_indexer(hours)
+        missing = ~np.isfinite(frame[self.variables].to_numpy(dtype=float))
+        # Most hourly grid batches contain each cell once. Handle repeats too.
+        if cells.is_unique:
+            self.spatial_counts[cell_positions, 0] += 1
+            self.spatial_counts[cell_positions, 1:] += missing
+        else:
+            np.add.at(self.spatial_counts[:, 0], cell_positions, 1)
+            np.add.at(self.spatial_counts[:, 1:], cell_positions, missing)
+        self.temporal_counts[:, 0] += np.bincount(hour_positions, minlength=len(self.hours))
+        for index in range(len(self.variables)):
+            self.temporal_counts[:, index + 1] += np.bincount(
+                hour_positions[missing[:, index]], minlength=len(self.hours)
+            )
+
+    def spatial_frame(self, index):
+        frame = self.cells.to_frame(index=False)
+        frame["variable"] = self.variables[index]
+        frame["n_rows"] = self.spatial_counts[:, 0]
+        frame["n_missing"] = self.spatial_counts[:, index + 1]
+        frame["missing_rate"] = frame["n_missing"] / frame["n_rows"]
+        frame["limited_scan"] = self.limited_scan
+        return frame
+
+    def temporal_frame(self):
+        frames = []
+        for index, variable in enumerate(self.variables):
+            frame = pd.DataFrame({
+                "hour": self.hours,
+                "variable": variable,
+                "n_rows": self.temporal_counts[:, 0],
+                "n_missing": self.temporal_counts[:, index + 1],
+            })
+            frame["missing_rate"] = frame["n_missing"] / frame["n_rows"]
+            frame["limited_scan"] = self.limited_scan
+            frames.append(frame)
+        return pd.concat(frames, ignore_index=True).sort_values(["variable", "hour"])
 
 
 class CovariateAccumulator:
@@ -317,7 +395,8 @@ class CovariateAccumulator:
 
 def summarize_covariates(path, covariates, columns, args):
     dataset = ds.dataset(path, format="parquet")
-    scanner = dataset.scanner(columns=columns, batch_size=args.batch_size)
+    scanner = dataset.scanner(columns=columns, batch_size=args.batch_size,
+                              batch_readahead=2, fragment_readahead=1)
     accumulators = {
         variable: CovariateAccumulator(
             variable=variable,
@@ -326,11 +405,14 @@ def summarize_covariates(path, covariates, columns, args):
         )
         for index, variable in enumerate(covariates)
     }
+    space_time = SpaceTimeMissingness(covariates)
+    space_time.limited_scan = args.max_batches is not None
 
     batches_scanned = 0
     for batch_number, batch in enumerate(scanner.to_batches(), start=1):
         frame = batch.to_pandas()
         frame = add_derived_covariates(frame)
+        space_time.update(frame)
 
         for variable in covariates:
             if variable in frame:
@@ -353,7 +435,86 @@ def summarize_covariates(path, covariates, columns, args):
     summary.insert(3, "limited_scan", args.max_batches is not None)
 
     samples = {variable: accumulators[variable].sample() for variable in covariates}
-    return summary, samples
+    return summary, samples, space_time
+
+
+def save_space_time_missingness(space_time, output_dir):
+    temporal = space_time.temporal_frame()
+    save_dataframe(temporal, output_dir / "covariate_missingness_by_hour.csv")
+    output_path = output_dir / "covariate_missingness_by_location.parquet"
+    # Write one variable at a time to avoid materializing the full long table.
+    writer = None
+    try:
+        for index in range(len(space_time.variables)):
+            table = pa.Table.from_pandas(space_time.spatial_frame(index), preserve_index=False)
+            if writer is None:
+                writer = pq.ParquetWriter(output_path, table.schema, compression="zstd")
+            writer.write_table(table)
+    finally:
+        if writer is not None:
+            writer.close()
+    print(f"Saved {output_path}")
+
+
+def plot_space_time_missingness(space_time, output_dir):
+    suffix = " (partial scan)" if space_time.limited_scan else ""
+    temporal = space_time.temporal_frame().pivot(
+        index="variable", columns="hour", values="missing_rate"
+    ).reindex(space_time.variables).sort_index(axis=1)
+    if temporal.empty:
+        save_blank_figure(output_dir / "covariate_missingness_by_hour.png",
+                          "ERA5 missingness over time", "No rows scanned")
+        return
+
+    fig, ax = plt.subplots(figsize=(16, max(5, 0.32 * len(temporal) + 2)), constrained_layout=True)
+    image = ax.imshow(temporal.to_numpy(), aspect="auto", interpolation="nearest",
+                      vmin=0, vmax=1, cmap="magma_r")
+    ticks = np.unique(np.linspace(0, len(temporal.columns) - 1, min(10, len(temporal.columns))).astype(int))
+    ax.set_xticks(ticks, temporal.columns[ticks].strftime("%Y-%m-%d\n%H:%M"))
+    ax.set_yticks(np.arange(len(temporal)), temporal.index)
+    ax.set_xlabel("ERA5 hour (UTC); each column is one observed hour")
+    ax.set_title("ERA5 missing fraction across grid cells, by hour" + suffix)
+    fig.colorbar(image, ax=ax, label="Missing fraction (0 = complete; 1 = all missing)")
+    output_path = output_dir / "covariate_missingness_by_hour.png"
+    fig.savefig(output_path, dpi=180)
+    plt.close(fig)
+    print(f"Saved {output_path}")
+
+    # Paginate native-grid maps to keep every variable readable.
+    per_page = 12
+    hours = temporal.columns
+    for start in range(0, len(space_time.variables), per_page):
+        count = min(per_page, len(space_time.variables) - start)
+        fig, axes = plt.subplots(math.ceil(count / 3), 3, squeeze=False,
+                                 figsize=(18, 3.3 * math.ceil(count / 3) + 1),
+                                 constrained_layout=True)
+        for ax, index in zip(axes.ravel(), range(start, start + count)):
+            frame = space_time.spatial_frame(index)
+            grid = frame.pivot(index="latitude", columns="longitude", values="missing_rate")
+            grid = grid.sort_index().sort_index(axis=1)
+            # Cell-center coordinates determine pixel edges on the ERA5 regular grid.
+            dx = float(np.median(np.diff(grid.columns))) if len(grid.columns) > 1 else 0.25
+            dy = float(np.median(np.diff(grid.index))) if len(grid.index) > 1 else 0.25
+            extent = [grid.columns.min() - dx / 2, grid.columns.max() + dx / 2,
+                      grid.index.min() - dy / 2, grid.index.max() + dy / 2]
+            cmap = plt.get_cmap("magma_r").copy()
+            cmap.set_bad("#d1d5db")
+            image = ax.imshow(grid.to_numpy(), origin="lower", extent=extent,
+                              aspect="auto", interpolation="nearest", vmin=0, vmax=1, cmap=cmap)
+            ax.set_title(space_time.variables[index], fontsize=10)
+            ax.set_xlabel("Longitude")
+            ax.set_ylabel("Latitude")
+        for ax in axes.ravel()[count:]:
+            ax.set_visible(False)
+        fig.colorbar(image, ax=list(axes.ravel()[:count]), shrink=0.85,
+                     label="Missing fraction over scanned hours (grey = no scanned rows)")
+        fig.suptitle("ERA5 spatial missingness" + suffix + "\n"
+                     + f"{hours.min():%Y-%m-%d %H:%M} to {hours.max():%Y-%m-%d %H:%M} UTC; "
+                     + "NaN/infinite values are missing; zeros are valid", fontsize=13)
+        output_path = output_dir / f"covariate_missingness_spatial_{start // per_page + 1:02d}.png"
+        fig.savefig(output_path, dpi=180)
+        plt.close(fig)
+        print(f"Saved {output_path}")
 
 
 def plot_missingness(summary, output_dir):
@@ -469,13 +630,15 @@ def main():
 
     schema_names = parquet_schema_names(args.merged_path)
     covariates = available_covariates(schema_names)
+    if not covariates:
+        raise ValueError("No ERA5 covariates found in the merged parquet.")
     columns = scan_columns(schema_names, covariates)
 
     print(f"Reading merged ERA5-left parquet: {args.merged_path}")
     print(f"Covariates: {', '.join(covariates)}")
     print(f"Scanning columns: {', '.join(columns)}")
 
-    summary, samples = summarize_covariates(args.merged_path, covariates, columns, args)
+    summary, samples, space_time = summarize_covariates(args.merged_path, covariates, columns, args)
     summary = summary.sort_values("variable", ignore_index=True)
 
     missingness = summary[
@@ -498,6 +661,8 @@ def main():
 
     plot_missingness(summary, args.output_dir)
     plot_covariate_distributions(summary, samples, args.output_dir)
+    save_space_time_missingness(space_time, args.output_dir)
+    plot_space_time_missingness(space_time, args.output_dir)
 
     print(f"Exploratory ERA5 outputs written to {args.output_dir}")
 

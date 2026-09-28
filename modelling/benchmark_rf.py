@@ -66,6 +66,20 @@ FOLD_ID_COLUMN = "fold_id"
 IMPORTANCE_COLUMN = "impurity_importance"
 
 PREFERRED_COVARIATES = [
+    # Top-of-atmosphere longwave: the direct ERA5 counterpart to the CLARA
+    # target. Absent columns are skipped by needed_columns, so both the
+    # "avg_" and "m" spellings are listed -- ECMWF names mean-rate parameters
+    # avg_* in recent GRIB (mean_surface_net_long_wave_radiation_flux arrives
+    # as era5_avg_snlwrf), but which one cfgrib emits for the top-of-atmosphere
+    # fields has not been checked against a downloaded file yet.
+    "era5_avg_tnlwrf",
+    "era5_avg_tnlwrfcs",
+    "era5_mtnlwrf",
+    "era5_mtnlwrfcs",
+    "era5_ttr",
+    "era5_ttrc",
+    "era5_tciw",
+    "era5_tclw",
     "era5_swvl1",
     "era5_stl1",
     "era5_cl",

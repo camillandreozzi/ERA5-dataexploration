@@ -39,9 +39,22 @@ CLARA_LONGITUDE_COLUMN = "CLARA_fov_longitude"
 HOUR_COLUMN = "hour"
 REQUEST_COLUMN = "request_id"
 
-# Same 38 variables as read_in/spatial_subset/data_fetch.py. That module cannot
+# Same 42 variables as read_in/spatial_subset/data_fetch.py. That module cannot
 # be imported for them, because importing it starts the download.
+#
+# The first four are the top-of-atmosphere longwave fields. They matter more
+# than the rest put together: CLARA measures outgoing longwave radiation at the
+# top of the atmosphere, and mean_top_net_long_wave_radiation_flux is ERA5's own
+# estimate of that same quantity. Everything else here describes the surface or
+# a column total, while OLR is emitted from cloud tops and the upper
+# troposphere -- which is why era5_hcc correlates +0.002 with the target.
+# The clear-sky field gives the cloud radiative effect by difference, and the
+# two cloud-water columns stand in for cold high cloud.
 VARIABLES = [
+    "mean_top_net_long_wave_radiation_flux",
+    "mean_top_net_long_wave_radiation_flux_clear_sky",
+    "total_column_cloud_ice_water",
+    "total_column_cloud_liquid_water",
     "2m_temperature",
     "mean_sea_level_pressure",
     "sea_surface_temperature",

@@ -63,6 +63,11 @@ usable rows. So `read_in/midnight_subset/midnight.py` builds one CDS request per
 requests and well under a GB for 2020. `data_fetch.py` skips requests already on
 disk, so an interrupted run resumes.
 
+That resumption is per-request, not per-variable: a request already on disk is
+skipped whole, so adding a variable to `VARIABLES` does not backfill the files
+already fetched. To pick up the four top-of-atmosphere fields, delete the
+existing `ERA5_midnight_*.grib` (and their `.idx`) and re-run the fetch.
+
 This also means `rf_stkriging.py --mode predict-grid` has no grid to predict on
 (use `--mode validate`), and the ERA5-left exploration — `explore_era5.py`
 missingness maps and `data_overlap.py` — does not apply here.
@@ -141,6 +146,61 @@ lags 4-9, and positive again at lags 12-13, the signature of the annual cycle th
 de-trending deliberately leaves in. The yearly panel spans only 2 periods in the
 default window, too few to support any lag, so its autocorrelation axis reports
 that instead of a plot.
+
+## The ERA5 variables
+
+The fetch scripts request 42 single-level variables. The list is duplicated in
+three places that must stay in step: `read_in/spatial_subset/data_fetch.py`,
+`read_in/midnight_subset/midnight.py`, and the inline `"variable"` list in
+`read_in/temporal_subset/data_fetch.py`.
+
+The first four are top-of-atmosphere longwave and matter more than the rest
+together:
+
+| variable | why |
+|---|---|
+| `mean_top_net_long_wave_radiation_flux` | ERA5's own OLR — the same physical quantity CLARA measures |
+| `mean_top_net_long_wave_radiation_flux_clear_sky` | cloud radiative effect, by difference with the above |
+| `total_column_cloud_ice_water` | cold high cloud |
+| `total_column_cloud_liquid_water` | cloud water column |
+
+They were added after a diagnostic showed the original 38 were all surface or
+column-integrated fields, with no top-of-atmosphere longwave at all: the only
+TOA variable was `toa_incident_solar_radiation`, incoming shortwave, which is
+identically zero at local midnight. OLR is emitted from cloud tops and the
+upper troposphere, so nothing in the set described the emitting layer. The
+symptom was that `era5_hcc`, high cloud cover and the dominant control on OLR,
+correlated +0.002 with the target.
+
+The same diagnostic, on the midnight subset, showed where the skill goes:
+
+| validation | R-squared (radiance) |
+|---|---|
+| random 5-fold (interpolation) | +0.284 |
+| grouped by month | +0.160 |
+| grouped by latitude band | +0.067 |
+| space-time blocked (what the benchmarks report) | +0.052 |
+
+and that the ERA5 covariates carry almost nothing that transfers across
+latitude: `era5_skt` has marginal correlation +0.43 with the target but scores
+-0.101 alone under latitude-blocked validation, because that correlation is
+entirely between-latitude. Dropping `latitude`/`longitude` makes the blocked
+score worse (+0.067 to +0.017), so the coordinates are supplying information
+the covariates do not.
+
+**These four have not been downloaded yet.** The lists are updated but the
+GRIBs on disk predate them, so the models still run on the previous 38 and
+`load_model_data` simply skips the absent columns. Re-running the fetch is what
+puts them in play.
+
+The modelling allow-lists in `benchmark_rf.py` and `benchmark_lasso.py` name
+several spellings of the top-of-atmosphere fields (`era5_avg_tnlwrf`,
+`era5_mtnlwrf`, `era5_ttr`, and the clear-sky forms). ECMWF names mean-rate
+parameters `avg_*` in recent GRIB — `mean_surface_net_long_wave_radiation_flux`
+arrives as `era5_avg_snlwrf` — but which spelling cfgrib emits for the TOA
+fields has not been checked against a downloaded file. Absent names are skipped,
+so listing all of them costs nothing; once a GRIB arrives, trim the list to the
+one that appears.
 
 ## For the modelling
 benchmark_lasso and benchmark_rf only model the mean function of OLR

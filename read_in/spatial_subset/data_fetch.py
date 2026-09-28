@@ -14,13 +14,26 @@ import cdsapi
 
 # CDS bills by "items" = variable x level x timestep. The `area` sub-setting is
 # NOT taken into account, so cropping the box shrinks the download but not the
-# cost. 38 variables x 24 hours x 182 days = 165,984 items, over the 120,000
-# limit for reanalysis-era5-single-levels -> one request per month instead.
+# cost. 42 variables x 24 hours x 182 days = 183,456 items, over the 120,000
+# limit for reanalysis-era5-single-levels -> one request per month instead
+# (42 x 24 x 31 = 31,248, comfortably under).
 
 DATASET = "reanalysis-era5-single-levels"
 OUT_DIR = data_path("spatial_subset")
 
+# The first four are the top-of-atmosphere longwave fields. They matter more
+# than the rest put together: CLARA measures outgoing longwave radiation at the
+# top of the atmosphere, and mean_top_net_long_wave_radiation_flux is ERA5's own
+# estimate of that same quantity. Everything else here describes the surface or
+# a column total, while OLR is emitted from cloud tops and the upper
+# troposphere -- which is why era5_hcc correlates +0.002 with the target.
+# The clear-sky field gives the cloud radiative effect by difference, and the
+# two cloud-water columns stand in for cold high cloud.
 VARIABLES = [
+    "mean_top_net_long_wave_radiation_flux",
+    "mean_top_net_long_wave_radiation_flux_clear_sky",
+    "total_column_cloud_ice_water",
+    "total_column_cloud_liquid_water",
     "2m_temperature",
     "mean_sea_level_pressure",
     "sea_surface_temperature",

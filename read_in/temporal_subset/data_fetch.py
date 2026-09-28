@@ -16,6 +16,14 @@ request = {
         "04", "05"
     ],
     "variable": [
+        # Top-of-atmosphere longwave first: CLARA measures OLR at the top of
+        # the atmosphere, and mean_top_net_long_wave_radiation_flux is ERA5's
+        # own estimate of that same quantity. Everything below it describes the
+        # surface or a column total. See read_in/spatial_subset/data_fetch.py.
+        "mean_top_net_long_wave_radiation_flux",
+        "mean_top_net_long_wave_radiation_flux_clear_sky",
+        "total_column_cloud_ice_water",
+        "total_column_cloud_liquid_water",
         "2m_temperature",
         "mean_sea_level_pressure",
         "sea_surface_temperature",

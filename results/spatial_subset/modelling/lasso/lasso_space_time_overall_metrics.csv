@@ -1,0 +1,2 @@
+validation_strategy,target,prediction_scale,n_predictions,rmse,mae,r2,baseline_rmse,baseline_mae,baseline_r2
+space_time_blocked,log_radiance,radiance,217,36.53777557750654,23.691059552925385,-1.0635912823385207,25.705763655361135,19.707041251518017,-0.021410921075850853

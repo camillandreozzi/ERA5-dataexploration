@@ -3,6 +3,10 @@
 Everything heavy (CDS download + modelling) runs on the cluster. The laptop
 holds the code and receives results.
 
+This covers the spatial subset. The midnight subset is a few hundred MB of GRIB
+and about a thousand rows, so it runs on the laptop and has no job scripts here;
+see the main `README.md`.
+
 ## Storage layout
 
 Large files never live inside the repo checkout. `paths.py` resolves them from

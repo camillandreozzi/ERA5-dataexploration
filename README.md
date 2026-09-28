@@ -1,12 +1,13 @@
 # ERA5-CLARA P-O-C
 
-Proof of concept on two subsets of ERA5, each with its own scripts in
+Proof of concept on three subsets of ERA5, each with its own scripts in
 `read_in/<subset>/` and its own `data/<subset>/` and `results/<subset>/` folders:
 
-| subset            | area                 | time                     | ERA5 files                 |
-|-------------------|----------------------|--------------------------|----------------------------|
-| `spatial_subset`  | Italy box            | all of 2020              | `ERA5_matched_2020MM.grib` |
-| `temporal_subset` | global               | 2020-12-01 to 2020-12-05 | `ERA5_matched.grib`        |
+| subset             | area                 | time                          | ERA5 files                    |
+|--------------------|----------------------|-------------------------------|-------------------------------|
+| `spatial_subset`   | Italy box            | all of 2020                   | `ERA5_matched_2020MM.grib`    |
+| `temporal_subset`  | global               | 2020-12-01 to 2020-12-05      | `ERA5_matched.grib`           |
+| `midnight_subset`  | global               | 2020, CLARA local midnight    | `ERA5_midnight_2020MM_HH.grib`|
 
 The exploratory and modelling scripts are shared. They use whichever subset
 `ERA5_SUBSET` names (default `spatial_subset`):
@@ -14,6 +15,7 @@ The exploratory and modelling scripts are shared. They use whichever subset
     ERA5_SUBSET=temporal_subset python3 modelling/benchmark_rf.py
 
 The spatial subset is fetched and processed on Euler; see `euler/README.md`.
+The midnight subset is small enough to run on a laptop; see below.
 
 ## Step by step (for `<subset>`):
 1. read_in/<subset>/read_inclara.py
@@ -42,6 +44,52 @@ only to scanned rows. Missingness describes the merged dataset: it can reflect
 land/ocean masks or hours unavailable after merging, not just gaps in the source
 GRIB. Entirely absent rows are not inferred as missing.
 
+## The midnight subset
+
+CLARA observations taken within 30 minutes of local midnight, anywhere on the
+globe, over 2020: 1,278 observations on 204 days, which merge into about a
+thousand hourly grid cells. 2020 is used because it is the year with the fewest
+CLARA gaps (16 missing days, longest gap 6 days; 2021-2023 each have gaps of
+98-164 days), and it holds 1,278 of the 1,785 near-midnight observations in the
+whole record.
+
+Two things differ from the other subsets.
+
+**Only CLARA-matched rows are kept.** The others keep every ERA5 hour x
+longitude x latitude row and attach CLARA where it exists. At local midnight
+that would mean 24 global hours a day, hundreds of GB, for about a thousand
+usable rows. So `read_in/midnight_subset/midnight.py` builds one CDS request per
+(month, UTC hour) covering just the box where CLARA observed in that hour: 103
+requests and well under a GB for 2020. `data_fetch.py` skips requests already on
+disk, so an interrupted run resumes.
+
+This also means `rf_stkriging.py --mode predict-grid` has no grid to predict on
+(use `--mode validate`), and the ERA5-left exploration — `explore_era5.py`
+missingness maps and `data_overlap.py` — does not apply here.
+
+**Midnight means CLARA's own clock.** The selection is `CLARA_local_time` within
+±30 min of 00:00. Be aware that near midnight that column runs about 1.3 h ahead
+of solar time at the footprint (`UTC + CLARA_fov_longitude / 15`), so the matched
+ERA5 rows sit at roughly 22-23 h solar time. Selecting on footprint solar time
+instead would pick a largely different set of observations (only 139 in common)
+spread over 40 days rather than 204.
+
+Everything runs locally:
+
+    export ERA5_SUBSET=midnight_subset
+    python3 read_in/midnight_subset/read_inclara.py        # select + plan requests
+    python3 read_in/midnight_subset/data_fetch.py          # 103 requests, resumable
+    python3 read_in/midnight_subset/read_inera5.py         # inventory of what arrived
+    python3 read_in/midnight_subset/data_preprocessing.py  # -> CLARA_ERA5_merged.parquet
+    python3 modelling/benchmark_lasso.py                   # and benchmark_rf.py
+    python3 modelling/rf_stkriging.py --mode validate
+
+The fetch waits on the CDS queue, so it is the slow step. To try the chain on one
+request first:
+
+    python3 read_in/midnight_subset/data_fetch.py --limit-requests 1
+    python3 read_in/midnight_subset/data_preprocessing.py --allow-missing-files
+
 ## Full CLARA record
 
 Run `python3 exploratory/explore_clara_full.py` to explore the CLARA time series
@@ -61,7 +109,8 @@ near 9e4 (with two values above 1e9). The default filter keeps
 `0 < radiance <= 500`, retaining 125,076 of the 159,550 rows in the default
 window; `--radiance-min`/`--radiance-max` move the bounds and
 `--no-radiance-filter` keeps everything finite. `row_retention.csv` records the
-count surviving each step.
+count surviving each step. The merge path applies the same bounds; see
+"The radiance filter" under "For the modelling".
 
 De-trending fits a polynomial in years since the first retained timestamp
 (`--trend-degree`, default 1) and subtracts it. The fit uses daily means by
@@ -110,6 +159,36 @@ RF, Lasso, and RF residual kriging include decimal-hour `local_time` as a contin
 covariate. They read it from the merged data; older files without this column use
 CET clock time derived from UTC `hour` for both training and full-grid prediction.
 Existing local times must be finite and in [0, 24).
+
+### The radiance filter
+
+`aggregate_clara_hourly` rejects CLARA observations outside `0 < radiance <= 500`
+before the hourly aggregation, so a calibration or off-nominal view never becomes
+a grid cell and never counts towards `clara_n_datapoints`. Cells left with no
+valid observation are not emitted. Each run prints how many observations were
+rejected and why.
+
+Until this was added the filter existed only in `explore_clara_full.py`, so
+nothing on the path the models read applied it. That mattered differently per
+subset. In `temporal_subset` the bad values are the 151 nonpositive ones (15% of
+1,030), which `add_log_radiance` was already discarding downstream — the filter
+moves that loss to where it is visible but does not change the training set. In
+`midnight_subset` the bad values are the 142 above 500 (11% of 1,278, max
+91,913); those are positive, so `add_log_radiance` never caught them and they
+were being trained on.
+
+The bounds are named constants in `read_in/temporal_subset/data_preprocessing.py`.
+The upper one is an empirical gap rather than a physical limit: valid Earth views
+run to about 500 and the next cluster sits near 9e4, so any bound between roughly
+600 and 1e4 selects the same rows. The units of `CLARA_radiance` are not
+established here, so it has not been checked against a physical bound.
+
+**Known limitation.** The nonpositive observations are discarded, not corrected.
+They are not calibration views: their housekeeping and geometry match valid Earth
+views, and they sit at a median of -13.7 with quartiles -20.9 to -7.2. That is the
+signature of a zero-point offset of order 15, roughly 10% of the median radiance,
+which would bias every observation rather than only those pushed below zero.
+Discarding removes the visible symptom and leaves the offset in place.
 
 Models retain strictly positive, finite hourly radiance observations and add
 `log_radiance = log(clara_radiance_hourly_mean)` as the training target. Zero and

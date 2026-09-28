@@ -42,6 +42,21 @@ CLARA_POSITIVE_LONGITUDE_COLUMN = "CLARA_fov_longitude_positive"
 
 KEY_COLUMNS = ["hour", "longitude", "latitude"]
 
+# Range of radiance values accepted as Earth views, applied before the hourly
+# aggregation below. CLARA.pkl mixes Earth views with calibration and
+# off-nominal views: about 12% of rows are negative, 6% are exactly zero, and a
+# separate cluster sits near 9e4 (with two values above 1e9). Valid Earth views
+# run to about 500, so the gap to the next cluster is two orders of magnitude
+# wide and any bound between ~600 and ~1e4 selects the same rows. These are the
+# same bounds exploratory/explore_clara_full.py has always used; before this
+# they were never applied on the path the models read.
+#
+# Note the upper bound is an empirical gap, not a physical limit: the units of
+# CLARA_radiance are not established here (the median Earth view is ~158, which
+# does not read as a W m-2 sr-1 flux equivalent).
+RADIANCE_MIN = 0.0
+RADIANCE_MAX = 500.0
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -148,24 +163,40 @@ def nearest_longitude_values(values, grid):
 
 
 def plot_clara_timeseries(clara, output_path):
+    """Retained observations on their own scale, with rejections marked below.
+
+    Plotting everything on one linear axis is useless: a solar-intrusion event
+    reaches ~9e4 against a median Earth view of ~150, so the retained series
+    collapses onto the axis and the figure shows two spikes and a flat line.
+    The retained observations therefore get the upper panel to themselves, and
+    the lower panel records when and why observations were rejected.
+    """
     plot_data = clara[[CLARA_TIME_COLUMN, CLARA_RADIANCE_COLUMN]].dropna()
     plot_data = plot_data.sort_values(CLARA_TIME_COLUMN)
+
+    keep = radiance_quality_mask(plot_data[CLARA_RADIANCE_COLUMN])
+    retained = plot_data[keep]
+    rejected = plot_data[~keep]
+
     hourly_mean = (
-        plot_data.assign(hour=plot_data[CLARA_TIME_COLUMN].dt.floor("h"))
+        retained.assign(hour=retained[CLARA_TIME_COLUMN].dt.floor("h"))
         .groupby("hour", as_index=False)[CLARA_RADIANCE_COLUMN]
         .mean()
     )
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    fig, ax = plt.subplots(figsize=(12, 5))
+    fig, (ax, ax_reject) = plt.subplots(
+        2, 1, figsize=(12, 7), sharex=True, gridspec_kw={"height_ratios": [3, 1]}
+    )
+
     ax.plot(
-        plot_data[CLARA_TIME_COLUMN],
-        plot_data[CLARA_RADIANCE_COLUMN],
+        retained[CLARA_TIME_COLUMN],
+        retained[CLARA_RADIANCE_COLUMN],
         color="#9ca3af",
         linewidth=0.7,
         alpha=0.55,
-        label="CLARA raw",
+        label=f"retained ({len(retained):,})",
     )
     ax.plot(
         hourly_mean["hour"],
@@ -174,13 +205,41 @@ def plot_clara_timeseries(clara, output_path):
         linewidth=2,
         marker="o",
         markersize=3,
-        label="CLARA hourly mean",
+        label="hourly mean",
     )
-    ax.set_xlabel("Time")
     ax.set_ylabel("CLARA radiance")
-    ax.set_title("CLARA raw radiance and hourly mean")
+    ax.set_title(
+        f"CLARA radiance retained by the ({RADIANCE_MIN:g}, {RADIANCE_MAX:g}] filter"
+    )
     ax.grid(True, alpha=0.3)
-    ax.legend()
+    ax.legend(loc="upper right")
+
+    # Rejections as a rug: position carries the time, colour the reason. Their
+    # magnitudes span four orders of magnitude and are not worth an axis.
+    values = pd.to_numeric(rejected[CLARA_RADIANCE_COLUMN], errors="coerce")
+    groups = [
+        ("above range", values > RADIANCE_MAX, "#dc2626", 1.0),
+        ("nonpositive", values <= RADIANCE_MIN, "#f59e0b", 0.6),
+        ("nonfinite", ~np.isfinite(values), "#6b7280", 0.2),
+    ]
+    for label, mask, color, height in groups:
+        if not mask.any():
+            continue
+        times = rejected.loc[mask, CLARA_TIME_COLUMN]
+        ax_reject.vlines(times, 0, height, color=color, linewidth=0.8, alpha=0.7,
+                         label=f"{label} ({int(mask.sum()):,})")
+
+    ax_reject.set_ylim(0, 1.15)
+    ax_reject.set_yticks([])
+    ax_reject.set_xlabel("Time")
+    ax_reject.set_ylabel("rejected")
+    ax_reject.grid(True, axis="x", alpha=0.3)
+    if any(mask.any() for _, mask, _, _ in groups):
+        ax_reject.legend(loc="upper right", ncol=3, fontsize="small")
+    else:
+        ax_reject.text(0.5, 0.5, "no observations rejected", ha="center", va="center",
+                       transform=ax_reject.transAxes, color="#6b7280", fontsize="small")
+
     fig.tight_layout()
     fig.savefig(output_path, dpi=200)
 
@@ -188,6 +247,30 @@ def plot_clara_timeseries(clara, output_path):
         plt.close(fig)
     else:
         plt.show()
+
+
+def radiance_quality_report(radiance):
+    """Count why each observation was rejected, so the discard is auditable.
+
+    The rejected rows used to disappear in two places at once: an out-of-range
+    value was averaged into its grid cell here, and ``add_log_radiance`` later
+    dropped whatever cell came out nonpositive. Neither said which rows went.
+    """
+    values = pd.to_numeric(radiance, errors="coerce")
+    nonfinite = ~np.isfinite(values)
+    return pd.DataFrame(
+        [
+            {"reason": "nonfinite", "n": int(nonfinite.sum())},
+            {"reason": f"<= {RADIANCE_MIN:g}", "n": int((~nonfinite & (values <= RADIANCE_MIN)).sum())},
+            {"reason": f"> {RADIANCE_MAX:g}", "n": int((~nonfinite & (values > RADIANCE_MAX)).sum())},
+        ]
+    )
+
+
+def radiance_quality_mask(radiance):
+    """Earth views: finite and within ``(RADIANCE_MIN, RADIANCE_MAX]``."""
+    values = pd.to_numeric(radiance, errors="coerce")
+    return np.isfinite(values) & (values > RADIANCE_MIN) & (values <= RADIANCE_MAX)
 
 
 def aggregate_clara_hourly(clara, era5_latitude, era5_longitude):
@@ -203,6 +286,22 @@ def aggregate_clara_hourly(clara, era5_latitude, era5_longitude):
         raise ValueError(f"CLARA input is missing columns: {missing_columns}")
 
     clara_grid = clara[needed_columns].dropna().copy()
+
+    # Reject calibration and off-nominal views before they reach the groupby,
+    # so a rejected observation never becomes a grid cell and never inflates
+    # clara_n_datapoints. Cells left with no valid observation are simply not
+    # emitted, rather than emitted with a corrupted mean.
+    keep = radiance_quality_mask(clara_grid[CLARA_RADIANCE_COLUMN])
+    if not keep.all():
+        report = radiance_quality_report(clara_grid.loc[~keep, CLARA_RADIANCE_COLUMN])
+        rejected = report[report["n"] > 0]
+        print(
+            f"Rejected {int((~keep).sum()):,} of {len(clara_grid):,} CLARA observations "
+            f"outside ({RADIANCE_MIN:g}, {RADIANCE_MAX:g}]: "
+            + ", ".join(f"{row.n:,} {row.reason}" for row in rejected.itertuples(index=False))
+        )
+    clara_grid = clara_grid[keep]
+
     if not is_global_longitude_grid(era5_longitude):
         clara_grid = clara_grid[
             clara_grid[longitude_column].between(float(np.min(era5_longitude)), float(np.max(era5_longitude)))

@@ -11,8 +11,8 @@ With neither set, both fall back to the repository checkout, which reproduces
 the current local layout.
 
 Each data subset (``spatial_subset``: Italy, all of 2020; ``temporal_subset``:
-global, 2020-12-01..05) keeps its own files under ``<root>/<subset>/``. The
-active one is chosen with
+global, 2020-12-01..05; ``midnight_subset``: global, 2020, CLARA local midnight)
+keeps its own files under ``<root>/<subset>/``. The active one is chosen with
 
     export ERA5_SUBSET=temporal_subset     # default: spatial_subset
 
@@ -35,7 +35,7 @@ def _root(env_var: str, default_name: str) -> Path:
 DATA_ROOT = _root("ERA5_DATA_ROOT", "data")
 RESULTS_ROOT = _root("ERA5_RESULTS_ROOT", "results")
 
-SUBSETS = ("spatial_subset", "temporal_subset")
+SUBSETS = ("spatial_subset", "temporal_subset", "midnight_subset")
 SUBSET = os.environ.get("ERA5_SUBSET", "spatial_subset")
 if SUBSET not in SUBSETS:
     raise ValueError(f"ERA5_SUBSET must be one of {SUBSETS}, got {SUBSET!r}")

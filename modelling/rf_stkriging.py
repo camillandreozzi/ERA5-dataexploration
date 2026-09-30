@@ -265,7 +265,82 @@ def kriging_window_size(n_train, n_closest_points):
     return max(2, min(n_closest_points, n_train))
 
 
-def fit_residual_kriging(x_train, y_train, z_train, residuals):
+# Inner blocked folds used to obtain out-of-sample residuals for variogram
+# estimation. Fewer than the outer folds because each outer training fold is
+# already a subset: 3 x 3 leaves enough rows per inner fit to be meaningful.
+INNER_N_SPACE_FOLDS = 3
+INNER_N_TIME_FOLDS = 3
+INNER_MIN_TRAIN_ROWS = 30
+INNER_MIN_TEST_ROWS = 3
+
+VARIOGRAM_RESIDUAL_CHOICES = ("in-sample", "nested")
+
+
+def assign_inner_folds(frame):
+    """Blocked folds within one outer training fold, mirroring the outer scheme.
+
+    The inner blocking has to match the outer kind, not just be a split: random
+    inner folds would measure interpolation error, while kriging is being asked
+    to extrapolate across a block boundary. On this data those differ a lot
+    (R^2 0.284 random vs 0.052 blocked), so a variogram calibrated on random
+    inner folds would be well estimated for the wrong task.
+    """
+    frame = frame.drop(
+        columns=[rf_benchmark.SPACE_FOLD_COLUMN, rf_benchmark.TIME_FOLD_COLUMN],
+        errors="ignore",
+    )
+    frame = rf_benchmark.assign_space_folds(frame, INNER_N_SPACE_FOLDS)
+    frame = rf_benchmark.assign_time_folds(frame, INNER_N_TIME_FOLDS)
+    return frame
+
+
+def out_of_fold_residuals(train_frame, feature_columns, target_column, fit_predict):
+    """Out-of-sample residuals inside the training rows, for variogram fitting.
+
+    The variogram is otherwise estimated from the residuals the mean model just
+    minimised, which are shrunk relative to genuine predictive error. That makes
+    the fitted nugget too small, so ordinary kriging trusts its neighbours more
+    than it should and applies corrections at close to full strength. Residuals
+    from inner blocked folds reflect real out-of-sample error, so the nugget
+    rises and the corrections damp toward zero.
+
+    No test-fold data is used: every row here comes from the outer training fold.
+
+    ``fit_predict(x_train, y_train, x_test)`` returns predictions for x_test.
+    Returns (residuals, frame) aligned to each other, or (None, None) when the
+    inner folds could not produce enough residuals to fit a variogram.
+    """
+    inner = assign_inner_folds(train_frame.reset_index(drop=True))
+    features = inner[feature_columns]
+    target = inner[target_column].astype(float)
+
+    residual_values = np.full(len(inner), np.nan, dtype=float)
+    for _space, _time, inner_train, inner_test in rf_benchmark.space_time_splits(inner):
+        if len(inner_train) < INNER_MIN_TRAIN_ROWS or len(inner_test) < INNER_MIN_TEST_ROWS:
+            continue
+        y_inner_train = target.loc[inner_train]
+        if y_inner_train.nunique(dropna=True) < 2:
+            continue
+        prediction = fit_predict(
+            features.loc[inner_train], y_inner_train, features.loc[inner_test]
+        )
+        residual_values[inner_test] = target.loc[inner_test].to_numpy(dtype=float) - prediction
+
+    keep = np.isfinite(residual_values)
+    if keep.sum() < MIN_KRIGING_ROWS:
+        return None, None
+    return residual_values[keep], inner.loc[keep]
+
+
+def fit_residual_kriging(x_train, y_train, z_train, residuals, variogram_sample=None):
+    """Krige from ``residuals``; optionally take the variogram from elsewhere.
+
+    ``variogram_sample`` is an (x, y, z, residuals) tuple used only to estimate
+    the variogram. Kriging still interpolates from the in-sample residuals,
+    because it needs residual values at known locations; only the covariance
+    model it assumes comes from the out-of-sample set. Passing None keeps the
+    original behaviour of estimating both from the same residuals.
+    """
     require_pykrige()
 
     x_train, y_train, z_train, residuals = finite_residual_training_data(
@@ -286,9 +361,27 @@ def fit_residual_kriging(x_train, y_train, z_train, residuals):
             "variogram_structured_sill_ratio": np.nan,
         }
 
-    kriging = make_residual_kriging(x_train, y_train, z_train, residuals)
-    variogram_parameters = variogram_parameters_from_model(kriging)
-    variogram_source = "auto"
+    if variogram_sample is None:
+        kriging = make_residual_kriging(x_train, y_train, z_train, residuals)
+        variogram_parameters = variogram_parameters_from_model(kriging)
+        variogram_source = "auto"
+    else:
+        # Estimate the covariance model from the out-of-sample residuals, then
+        # refit kriging on the in-sample ones holding those parameters fixed.
+        vx, vy, vz, v_residuals = finite_residual_training_data(*variogram_sample)
+        if len(v_residuals) < MIN_KRIGING_ROWS or pd.Series(v_residuals).nunique(dropna=True) < 2:
+            kriging = make_residual_kriging(x_train, y_train, z_train, residuals)
+            variogram_parameters = variogram_parameters_from_model(kriging)
+            variogram_source = "auto_nested_unavailable"
+        else:
+            variogram_parameters = variogram_parameters_from_model(
+                make_residual_kriging(vx, vy, vz, v_residuals)
+            )
+            kriging = make_residual_kriging(
+                x_train, y_train, z_train, residuals,
+                variogram_parameters=variogram_parameters,
+            )
+            variogram_source = "nested_out_of_fold"
 
     if structured_sill_ratio(variogram_parameters) < MIN_STRUCTURED_SILL_RATIO:
         variogram_parameters = empirical_variogram_parameters(

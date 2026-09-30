@@ -65,14 +65,9 @@ COEF_COLUMN = "coefficient_on_standardized_x"
 
 PREFERRED_COVARIATES = [
     # Top-of-atmosphere longwave: the direct ERA5 counterpart to the CLARA
-    # target. Kept in step with modelling/benchmark_rf.py; see the note there
-    # on why both the "avg_" and "m" spellings are listed.
+    # target. Kept in step with modelling/benchmark_rf.py; see the note there.
     "era5_avg_tnlwrf",
     "era5_avg_tnlwrfcs",
-    "era5_mtnlwrf",
-    "era5_mtnlwrfcs",
-    "era5_ttr",
-    "era5_ttrc",
     "era5_tciw",
     "era5_tclw",
     "era5_swvl1",

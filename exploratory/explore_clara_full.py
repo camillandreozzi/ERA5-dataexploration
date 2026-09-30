@@ -22,17 +22,22 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from read_in.clara_source import load_clara_full
+
 
 # The full CLARA record is shared by every subset, so it stays unscoped.
 RESULTS_DIR = results_path("exploratory/clara_full")
 
-DEFAULT_CLARA_PATH = data_path("CLARA.pkl")
+DEFAULT_CLARA_PATH = data_path("CLARA_full.parquet")
 
 TIME_COLUMN = "TimeJD"
 RADIANCE_COLUMN = "CLARA_radiance"
 
+# The whole delivered record. The old default stopped at 2021-12-31 because
+# CLARA.pkl went sparse after 2021-08; the raw source is the other way round,
+# with 2024-2025 denser in Earth views (about 68% in range) than 2020 (33%).
 DEFAULT_START = "2020-01-01"
-DEFAULT_END = "2021-12-31"
+DEFAULT_END = "2025-10-31"
 DEFAULT_RADIANCE_MIN = 0.0
 DEFAULT_RADIANCE_MAX = 500.0
 DEFAULT_TREND_DEGREE = 1
@@ -48,7 +53,7 @@ GRANULARITIES = {
     "daily": ("D", "%Y-%m", 90),
     "weekly": ("W-MON", "%Y-%m", 52),
     "monthly": ("MS", "%Y-%m", 24),
-    "yearly": ("YS", "%Y", 3),
+    "yearly": ("YS", "%Y", 6),
 }
 
 # Granularities coarse enough that the automatic locator would repeat tick labels.
@@ -158,7 +163,14 @@ def load_clara(path):
     if not path.exists():
         raise FileNotFoundError(f"CLARA file not found: {path}")
 
-    clara = pd.read_pickle(path)
+    # This script is the one consumer that needs no footprint, so it accepts a
+    # build made with --no-geolocation and reads only the two columns it plots.
+    clara = load_clara_full(
+        path,
+        require_geolocation=False,
+        require_complete=False,
+        columns=[TIME_COLUMN, RADIANCE_COLUMN],
+    )
     missing_columns = sorted({TIME_COLUMN, RADIANCE_COLUMN} - set(clara.columns))
     if missing_columns:
         raise ValueError(f"CLARA file is missing columns: {missing_columns}")

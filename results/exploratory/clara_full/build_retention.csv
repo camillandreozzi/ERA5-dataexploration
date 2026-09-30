@@ -1,0 +1,7 @@
+step,n
+save files read,68
+placeholder files dropped,9
+rows read,3146797
+duplicate timestamps dropped,4283
+rows after deduplication,3142514
+"rows in (0, 500]",1377295
